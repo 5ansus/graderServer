@@ -353,24 +353,38 @@ python manage.py sqlmigrate grader 0001
 # Health check
 curl https://YOUR_USERNAME.pythonanywhere.com/api/health
 
-# Register
-curl -X POST https://YOUR_USERNAME.pythonanywhere.com/api/register \
-  -H "Content-Type: application/json" \
-  -d '{"username":"test","email":"test@test.com","password":"test123"}'
-
-# Login
+# Login simple (crea usuario automáticamente si no existe)
 curl -X POST https://YOUR_USERNAME.pythonanywhere.com/api/login \
   -H "Content-Type: application/json" \
-  -d '{"username":"test","password":"test123"}'
+  -d '{"username":"mi_nombre"}'
+
+# Login con password personalizada (opcional)
+curl -X POST https://YOUR_USERNAME.pythonanywhere.com/api/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"mi_nombre","password":"mi_password"}'
 ```
 
-### Con el cliente Python:
+### Con el cliente Python (RECOMENDADO):
 
-El cliente `grader_qiskit_client.py` ya es compatible. Solo actualiza la URL en la línea 20:
+El cliente `grader_qiskit_client.py` ya es compatible y súper simple:
 
 ```python
-BASE_URL = "https://YOUR_USERNAME.pythonanywhere.com/api"
+from grader_qiskit_client import login, submit, show_challenges, show_leaderboard
+
+# Login simple - auto-crea usuario si no existe
+login('tu_nombre')
+
+# Ver challenges
+show_challenges()
+
+# Enviar solución
+submit(35, "tu código")
+
+# Ver leaderboard
+show_leaderboard()
 ```
+
+**Ver `USO_SIMPLE.md` para más detalles.**
 
 ## 📝 Actualizar URL en el Cliente
 
