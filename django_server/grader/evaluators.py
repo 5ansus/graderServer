@@ -18,6 +18,7 @@ class CodeEvaluator:
     def evaluate_challenge_35_results(results: dict) -> tuple[int, bool, str, float]:
         """
         Evaluates Challenge 35 using ONLY results (no code execution).
+        Updated with new reference values for 3 separate tasks.
 
         Args:
             results: Dictionary with required variables
@@ -28,118 +29,155 @@ class CodeEvaluator:
         start_time = time.time()
 
         try:
-            # Check that required variables exist
-            required_items = [
-                'alpha_vqe_result',
-                'beta_vqe_result',
-                'alpha_gap_ev',
-                'beta_gap_ev',
-                'alpha_homo_lumo',
-                'beta_homo_lumo'
-            ]
+            # Check that required variables exist for all tasks
+            required_items = {
+                'task1': ['alpha_vqe_result', 'beta_vqe_result'],
+                'task2': ['alpha_gap_ev', 'beta_gap_ev', 'alpha_homo_lumo', 'beta_homo_lumo'],
+                'task3': ['alpha_index', 'beta_index', 'fidelity']
+            }
 
-            missing = [item for item in required_items if item not in results]
+            # Flatten all required items
+            all_required = []
+            for task_items in required_items.values():
+                all_required.extend(task_items)
+
+            missing = [item for item in all_required if item not in results]
 
             if missing:
                 feedback = f"❌ Missing results: {', '.join(missing)}\n"
-                feedback += "You must send all required variables."
-                return 0, False, feedback, time.time() - start_time            # Extraer resultados
+                feedback += "You must send all required variables for all 3 tasks."
+                return 0, False, feedback, time.time() - start_time
+
+            # Extract results
             alpha_vqe = results.get('alpha_vqe_result')
             beta_vqe = results.get('beta_vqe_result')
             alpha_gap = results.get('alpha_gap_ev')
             beta_gap = results.get('beta_gap_ev')
             alpha_homo_lumo = results.get('alpha_homo_lumo')
             beta_homo_lumo = results.get('beta_homo_lumo')
+            alpha_index = results.get('alpha_index')
+            beta_index = results.get('beta_index')
+            fidelity = results.get('fidelity')
 
             # Scoring system
             score = 0
             feedback_parts = []
 
-            # Reference values (approximate)
-            ALPHA_VQE_REF = -2.1847  # Approximate ground state energy
-            BETA_VQE_REF = 0.9375
+            # NEW REFERENCE VALUES
+            ALPHA_VQE_REF = -12.29314089
+            BETA_VQE_REF = 0.00015438
+            ALPHA_GAP_EV_REF = 52.00319191407749
+            BETA_GAP_EV_REF = 27.211399999999994
+            ALPHA_HOMO_LUMO_REF = 1.9110810878557327
+            BETA_HOMO_LUMO_REF = 1.0  # Can be 0.9999999999999998 or 1
+            ALPHA_INDEX_REF = 1
+            BETA_INDEX_REF = 0
+            FIDELITY_REF = 1.0
 
-            # Task 1: VQE Analysis (30 points)
-            if alpha_vqe is not None and beta_vqe is not None:
-                try:
-                    alpha_energy = float(alpha_vqe)
-                    beta_energy = float(beta_vqe)
+            # TASK 1: VQE Analysis (30 points)
+            task1_score = 0
+            try:
+                alpha_energy = float(alpha_vqe)
+                beta_energy = float(beta_vqe)
 
-                    # Check proximity to reference values
-                    alpha_error = abs(alpha_energy - ALPHA_VQE_REF)
-                    beta_error = abs(beta_energy - BETA_VQE_REF)
+                # Check proximity to reference values
+                alpha_error = abs(alpha_energy - ALPHA_VQE_REF)
+                beta_error = abs(beta_energy - BETA_VQE_REF)
 
-                    if alpha_error < 0.1 and beta_error < 0.1:
-                        score += 30
-                        feedback_parts.append("✅ Task 1 (VQE): Excellent! Very accurate energies.")
-                    elif alpha_error < 0.5 and beta_error < 0.5:
-                        score += 20
-                        feedback_parts.append("⚠️ Task 1 (VQE): Good energies, but precision can be improved.")
-                    else:
-                        score += 10
-                        feedback_parts.append("⚠️ Task 1 (VQE): Energies calculated but far from expected value.")
-                except:
-                    feedback_parts.append("❌ Task 1 (VQE): Error processing VQE energies.")
-            else:
-                feedback_parts.append("❌ Task 1 (VQE): VQE results not found.")            # Task 2: HOMO-LUMO Gap (30 points)
-            if alpha_gap is not None and beta_gap is not None:
-                try:
-                    alpha_gap_val = float(alpha_gap)
-                    beta_gap_val = float(beta_gap)
+                # Relative error for better scoring
+                alpha_rel_error = alpha_error / abs(ALPHA_VQE_REF) if ALPHA_VQE_REF != 0 else alpha_error
+                beta_rel_error = beta_error / abs(BETA_VQE_REF) if BETA_VQE_REF != 0 else beta_error
 
-                    # Gaps should be positive and reasonable (0-15 eV typically)
-                    if 0 < alpha_gap_val < 15 and 0 < beta_gap_val < 15:
-                        score += 30
-                        feedback_parts.append(f"✅ Task 2 (HOMO-LUMO): Perfect! Alpha gap: {alpha_gap_val:.2f} eV, Beta gap: {beta_gap_val:.2f} eV")
+                if alpha_rel_error < 0.01 and beta_rel_error < 0.1:
+                    task1_score = 30
+                    feedback_parts.append(f"✅ Task 1 (VQE): Perfect! α={alpha_energy:.8f}, β={beta_energy:.8f}")
+                elif alpha_rel_error < 0.05 and beta_rel_error < 0.5:
+                    task1_score = 20
+                    feedback_parts.append(f"⚠️ Task 1 (VQE): Good, but can improve precision. α={alpha_energy:.8f}, β={beta_energy:.8f}")
+                else:
+                    task1_score = 10
+                    feedback_parts.append(f"⚠️ Task 1 (VQE): Calculated but far from reference. α={alpha_energy:.8f}, β={beta_energy:.8f}")
 
-                        # Bonus for correct interpretation
-                        if beta_gap_val < alpha_gap_val:
-                            feedback_parts.append("   💡 Beta is more reactive than Alpha (smaller gap)")
-                    else:
-                        score += 15
-                        feedback_parts.append("⚠️ Task 2 (HOMO-LUMO): Gaps calculated but unusual values.")
-                except:
-                    feedback_parts.append("❌ Task 2 (HOMO-LUMO): Error processing gaps.")
-            else:
-                feedback_parts.append("❌ Task 2 (HOMO-LUMO): Gap values not found.")
+                score += task1_score
+            except Exception as e:
+                feedback_parts.append(f"❌ Task 1 (VQE): Error processing - {str(e)}")
 
-            # Task 3: Quantum State Divergence (40 points)
-            if alpha_homo_lumo is not None and beta_homo_lumo is not None:
-                try:
-                    alpha_hl = float(alpha_homo_lumo)
-                    beta_hl = float(beta_homo_lumo)
+            # TASK 2: HOMO-LUMO Gap (30 points)
+            task2_score = 0
+            try:
+                alpha_gap_val = float(alpha_gap)
+                beta_gap_val = float(beta_gap)
+                alpha_hl = float(alpha_homo_lumo)
+                beta_hl = float(beta_homo_lumo)
 
-                    # Check consistency with gaps in eV
-                    if alpha_gap is not None and beta_gap is not None:
-                        expected_alpha = alpha_gap_val / 27.211  # eV to Hartree
-                        expected_beta = beta_gap_val / 27.211
+                # Check gaps
+                gap_error_alpha = abs(alpha_gap_val - ALPHA_GAP_EV_REF)
+                gap_error_beta = abs(beta_gap_val - BETA_GAP_EV_REF)
 
-                        alpha_consistency = abs(alpha_hl - expected_alpha) < 0.01
-                        beta_consistency = abs(beta_hl - expected_beta) < 0.01
+                # Check HOMO-LUMO values
+                hl_error_alpha = abs(alpha_hl - ALPHA_HOMO_LUMO_REF)
+                hl_error_beta = abs(beta_hl - BETA_HOMO_LUMO_REF)
 
-                        if alpha_consistency and beta_consistency:
-                            score += 40
-                            feedback_parts.append("✅ Task 3 (QSD): Excellent! Complete and consistent analysis.")
-                        else:
-                            score += 25
-                            feedback_parts.append("⚠️ Task 3 (QSD): Results present but inconsistencies in units.")
-                    else:
-                        score += 20
-                        feedback_parts.append("⚠️ Task 3 (QSD): Values present but missing data for verification.")
-                except:
-                    score += 10
-                    feedback_parts.append("⚠️ Task 3 (QSD): Error validating results.")
-            else:
-                feedback_parts.append("❌ Task 3 (QSD): Quantum state divergence analysis not found.")
+                # Relative errors
+                gap_rel_alpha = gap_error_alpha / ALPHA_GAP_EV_REF
+                gap_rel_beta = gap_error_beta / BETA_GAP_EV_REF
+                hl_rel_alpha = hl_error_alpha / ALPHA_HOMO_LUMO_REF
+                hl_rel_beta = hl_error_beta / BETA_HOMO_LUMO_REF
+
+                if (gap_rel_alpha < 0.01 and gap_rel_beta < 0.01 and
+                    hl_rel_alpha < 0.01 and hl_rel_beta < 0.01):
+                    task2_score = 30
+                    feedback_parts.append(f"✅ Task 2 (HOMO-LUMO): Perfect! All values accurate.")
+                elif (gap_rel_alpha < 0.05 and gap_rel_beta < 0.05 and
+                      hl_rel_alpha < 0.05 and hl_rel_beta < 0.05):
+                    task2_score = 20
+                    feedback_parts.append(f"⚠️ Task 2 (HOMO-LUMO): Good, small deviations present.")
+                else:
+                    task2_score = 10
+                    feedback_parts.append(f"⚠️ Task 2 (HOMO-LUMO): Calculated but significant deviations.")
+
+                score += task2_score
+            except Exception as e:
+                feedback_parts.append(f"❌ Task 2 (HOMO-LUMO): Error processing - {str(e)}")
+
+            # TASK 3: QSD - Quantum State Divergence (40 points)
+            task3_score = 0
+            try:
+                alpha_idx = int(alpha_index)
+                beta_idx = int(beta_index)
+                fid = float(fidelity)
+
+                # Check indices
+                indices_correct = (alpha_idx == ALPHA_INDEX_REF and beta_idx == BETA_INDEX_REF)
+
+                # Check fidelity (allow small numerical errors)
+                fidelity_error = abs(fid - FIDELITY_REF)
+                fidelity_correct = fidelity_error < 0.01
+
+                if indices_correct and fidelity_correct:
+                    task3_score = 40
+                    feedback_parts.append(f"✅ Task 3 (QSD): Perfect! Correct state matching α[{alpha_idx}]↔β[{beta_idx}], F={fid:.6f}")
+                elif indices_correct or fidelity_correct:
+                    task3_score = 25
+                    feedback_parts.append(f"⚠️ Task 3 (QSD): Partial credit - indices or fidelity correct.")
+                else:
+                    task3_score = 10
+                    feedback_parts.append(f"⚠️ Task 3 (QSD): Incorrect matching. Got α[{alpha_idx}]↔β[{beta_idx}], F={fid:.6f}")
+
+                score += task3_score
+            except Exception as e:
+                feedback_parts.append(f"❌ Task 3 (QSD): Error processing - {str(e)}")
 
             # Final feedback
             feedback = "\n".join(feedback_parts)
             passed = score >= 70
 
+            feedback += f"\n\n📊 Total Score: {score}/100 (Task1: {task1_score}/30, Task2: {task2_score}/30, Task3: {task3_score}/40)"
+
             if passed:
-                feedback += f"\n\n🎉 CONGRATULATIONS! You completed the challenge with {score}/100 points."
+                feedback += f"\n🎉 CONGRATULATIONS! You passed the challenge!"
             else:
-                feedback += f"\n\n📚 You need ≥70 points to pass. You have {score}/100."
+                feedback += f"\n📚 You need ≥70 points to pass. Keep trying!"
 
             return score, passed, feedback, time.time() - start_time
 
