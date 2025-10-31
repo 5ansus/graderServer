@@ -14,41 +14,16 @@ from grader.models import Challenge
 
 challenges_data = [
     {
-        'id': 1,
-        'name': 'Challenge 1: Introducción',
-        'description': 'Primer desafío básico',
-        'max_score': 100,
-        'difficulty': 'easy',
-        'is_active': True,
-    },
-    {
-        'id': 2,
-        'name': 'Challenge 2: Intermedio',
-        'description': 'Segundo desafío de dificultad media',
-        'max_score': 100,
-        'difficulty': 'medium',
-        'is_active': True,
-    },
-    {
-        'id': 3,
-        'name': 'Challenge 3: Avanzado',
-        'description': 'Tercer desafío más complejo',
-        'max_score': 100,
-        'difficulty': 'medium',
-        'is_active': True,
-    },
-    {
-        'id': 4,
-        'name': 'Challenge 4: Experto',
-        'description': 'Cuarto desafío de nivel experto',
-        'max_score': 100,
-        'difficulty': 'hard',
-        'is_active': True,
-    },
-    {
-        'id': 5,
-        'name': 'Challenge 5: Maestro',
-        'description': 'Quinto desafío del nivel maestro',
+        'id': 35,
+        'name': 'A Halloween Carol: Quantum Chemistry Mystery',
+        'description': '''Analyze two mysterious substances (Alpha and Beta) from a haunted laboratory using quantum chemistry techniques.
+
+Your mission involves three tasks:
+1. Use VQE to find ground state energies
+2. Calculate HOMO-LUMO gaps to determine reactivity
+3. Apply QSD with Krylov subspace to discover hidden relationships
+
+Complete the quantum chemistry analysis to uncover the truth behind these substances.''',
         'max_score': 100,
         'difficulty': 'hard',
         'is_active': True,

@@ -54,7 +54,7 @@ python3.10 manage.py createsuperuser
 import os
 import sys
 
-path = '/home/YOUR_USERNAME/graderServer/django_server'
+path = '/home/uamcpra/graderServer/django_server'
 if path not in sys.path:
     sys.path.insert(0, path)
 
