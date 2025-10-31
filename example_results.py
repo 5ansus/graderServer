@@ -5,8 +5,8 @@ Users run code locally and only send the final results.
 
 from grader_qiskit_client import login, submit_results
 
-# 1. Login
-login('AliceQuantum', 'mypassword123')
+# 1. Login (auto-creates user if doesn't exist)
+login('QuantumUser2025')
 
 # 2. User executes their code locally in the Halloween35.ipynb notebook
 # and obtains the results
