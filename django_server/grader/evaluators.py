@@ -273,12 +273,11 @@ class CodeEvaluator:
             return 0, False, f"❌ Error de sintaxis: {str(e)}", execution_time
         except Exception as e:
             execution_time = time.time() - start_time
-            error_msg = f"❌ Error al evaluar: {str(e)}\n{traceback.format_exc()}"
+            error_msg = f"❌ Evaluation error: {str(e)}\n{traceback.format_exc()}"
             return 0, False, error_msg, execution_time
 
     @staticmethod
     def evaluate(challenge_id: int, code: str) -> tuple[int, bool, str, float]:
-        """
         """
         Main method to evaluate code according to challenge.
 
