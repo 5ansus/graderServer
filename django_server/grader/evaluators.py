@@ -15,6 +15,148 @@ class CodeEvaluator:
     """
 
     @staticmethod
+    def evaluate_challenge_35_task1(results: dict) -> tuple[int, bool, str, float]:
+        """Task 1: VQE Analysis - Binary accept/reject"""
+        start_time = time.time()
+        try:
+            ALPHA_VQE_REF = -12.29314089
+            BETA_VQE_REF = 0.00015438
+            EPSILON = 0.01
+
+            def check_value_in_range(value, reference, epsilon):
+                if reference < 0:
+                    lower = reference * (1 + epsilon)
+                    upper = reference * (1 - epsilon)
+                else:
+                    lower = reference * (1 - epsilon)
+                    upper = reference * (1 + epsilon)
+                return lower <= value <= upper
+
+            alpha_energy = float(results.get('alpha_vqe_result'))
+            beta_energy = float(results.get('beta_vqe_result'))
+
+            alpha_ok = check_value_in_range(alpha_energy, ALPHA_VQE_REF, EPSILON)
+            beta_ok = check_value_in_range(beta_energy, BETA_VQE_REF, EPSILON)
+
+            if alpha_ok and beta_ok:
+                return 20, True, "✅ Task 1 ACCEPTED", time.time() - start_time
+            else:
+                return 0, False, "❌ Task 1 REJECTED", time.time() - start_time
+        except Exception as e:
+            return 0, False, f"❌ Task 1 ERROR: {str(e)}", time.time() - start_time
+
+    @staticmethod
+    def evaluate_challenge_35_task2(results: dict) -> tuple[int, bool, str, float]:
+        """Task 2: HOMO-LUMO Gap - Binary accept/reject"""
+        start_time = time.time()
+        try:
+            ALPHA_GAP_EV_REF = 52.00319191407749
+            BETA_GAP_EV_REF = 27.211399999999994
+            ALPHA_HOMO_LUMO_REF = 1.9110810878557327
+            BETA_HOMO_LUMO_REF = 1.0
+            EPSILON = 0.01
+
+            def check_value_in_range(value, reference, epsilon):
+                if reference < 0:
+                    lower = reference * (1 + epsilon)
+                    upper = reference * (1 - epsilon)
+                else:
+                    lower = reference * (1 - epsilon)
+                    upper = reference * (1 + epsilon)
+                return lower <= value <= upper
+
+            alpha_gap = float(results.get('alpha_gap_ev'))
+            beta_gap = float(results.get('beta_gap_ev'))
+            alpha_hl = float(results.get('alpha_homo_lumo'))
+            beta_hl = float(results.get('beta_homo_lumo'))
+
+            all_ok = (
+                check_value_in_range(alpha_gap, ALPHA_GAP_EV_REF, EPSILON) and
+                check_value_in_range(beta_gap, BETA_GAP_EV_REF, EPSILON) and
+                check_value_in_range(alpha_hl, ALPHA_HOMO_LUMO_REF, EPSILON) and
+                check_value_in_range(beta_hl, BETA_HOMO_LUMO_REF, EPSILON)
+            )
+
+            if all_ok:
+                return 20, True, "✅ Task 2 ACCEPTED", time.time() - start_time
+            else:
+                return 0, False, "❌ Task 2 REJECTED", time.time() - start_time
+        except Exception as e:
+            return 0, False, f"❌ Task 2 ERROR: {str(e)}", time.time() - start_time
+
+    @staticmethod
+    def evaluate_challenge_35_task3(results: dict) -> tuple[int, bool, str, float]:
+        """Task 3: QSD - Binary accept/reject"""
+        start_time = time.time()
+        try:
+            ALPHA_INDEX_REF = 1
+            BETA_INDEX_REF = 0
+            FIDELITY_REF = 1.0
+            EPSILON = 0.01
+
+            def check_value_in_range(value, reference, epsilon):
+                if reference < 0:
+                    lower = reference * (1 + epsilon)
+                    upper = reference * (1 - epsilon)
+                else:
+                    lower = reference * (1 - epsilon)
+                    upper = reference * (1 + epsilon)
+                return lower <= value <= upper
+
+            alpha_idx = int(results.get('alpha_index'))
+            beta_idx = int(results.get('beta_index'))
+            fidelity = float(results.get('fidelity'))
+
+            indices_ok = (alpha_idx == ALPHA_INDEX_REF and beta_idx == BETA_INDEX_REF)
+            fidelity_ok = check_value_in_range(fidelity, FIDELITY_REF, EPSILON)
+
+            if indices_ok and fidelity_ok:
+                return 30, True, "✅ Task 3 ACCEPTED", time.time() - start_time
+            else:
+                return 0, False, "❌ Task 3 REJECTED", time.time() - start_time
+        except Exception as e:
+            return 0, False, f"❌ Task 3 ERROR: {str(e)}", time.time() - start_time
+
+    @staticmethod
+    def evaluate_challenge_35_task4(results: dict) -> tuple[int, bool, str, float]:
+        """Task 4: Final Energy Beta - Binary accept/reject"""
+        start_time = time.time()
+        try:
+            FINAL_ENERGY_BETA_REF = 0.0006559581843628555
+            EPSILON = 0.01
+
+            energy_beta = float(results.get('final_energy_beta'))
+            lower = FINAL_ENERGY_BETA_REF * (1 - EPSILON)
+            upper = FINAL_ENERGY_BETA_REF * (1 + EPSILON)
+
+            if lower <= energy_beta <= upper:
+                return 15, True, "✅ Task 4 ACCEPTED", time.time() - start_time
+            else:
+                return 0, False, "❌ Task 4 REJECTED", time.time() - start_time
+        except Exception as e:
+            return 0, False, f"❌ Task 4 ERROR: {str(e)}", time.time() - start_time
+
+    @staticmethod
+    def evaluate_challenge_35_task5(results: dict) -> tuple[int, bool, str, float]:
+        """Task 5: Final Energy Perturbed - Binary accept/reject"""
+        start_time = time.time()
+        try:
+            FINAL_ENERGY_PERTURBED_REF = -12.294612921331247
+            EPSILON = 0.01
+
+            energy_perturbed = float(results.get('final_energy_perturbed'))
+            # Handle negative reference
+            lower = FINAL_ENERGY_PERTURBED_REF * (1 + EPSILON)
+            upper = FINAL_ENERGY_PERTURBED_REF * (1 - EPSILON)
+
+            if lower <= energy_perturbed <= upper:
+                return 15, True, "✅ Task 5 ACCEPTED", time.time() - start_time
+            else:
+                return 0, False, "❌ Task 5 REJECTED", time.time() - start_time
+        except Exception as e:
+            return 0, False, f"❌ Task 5 ERROR: {str(e)}", time.time() - start_time
+
+    @staticmethod
     def evaluate_challenge_35_results(results: dict) -> tuple[int, bool, str, float]:
         """
         Evaluates Challenge 35 using ONLY results (no code execution).
@@ -93,7 +235,7 @@ class CodeEvaluator:
                     upper = reference * (1 + epsilon)
                 return lower <= value <= upper
 
-            # TASK 1: VQE Analysis (30 points)
+            # TASK 1: VQE Analysis (20 points) - BINARY: Accept or Reject
             task1_score = 0
             try:
                 alpha_energy = float(alpha_vqe)
@@ -104,18 +246,17 @@ class CodeEvaluator:
                 beta_in_range = check_value_in_range(beta_energy, BETA_VQE_REF, EPSILON)
 
                 if alpha_in_range and beta_in_range:
-                    task1_score = 30
-                    feedback_parts.append(f"✅ Task 1 (VQE): Perfect! α={alpha_energy:.8f}, β={beta_energy:.8f}")
+                    task1_score = 20
+                    feedback_parts.append(f"✅ Task 1 ACCEPTED (20 pts)")
                 else:
-                    alpha_error = abs((alpha_energy - ALPHA_VQE_REF) / ALPHA_VQE_REF) * 100
-                    beta_error = abs((beta_energy - BETA_VQE_REF) / BETA_VQE_REF) * 100
-                    feedback_parts.append(f"❌ Task 1 (VQE): Outside acceptable range. α error: {alpha_error:.2f}%, β error: {beta_error:.2f}%")
+                    task1_score = 0
+                    feedback_parts.append(f"❌ Task 1 REJECTED (0 pts)")
 
                 score += task1_score
             except Exception as e:
-                feedback_parts.append(f"❌ Task 1 (VQE): Error processing - {str(e)}")
+                feedback_parts.append(f"❌ Task 1 ERROR (0 pts): {str(e)}")
 
-            # TASK 2: HOMO-LUMO Gap (30 points)
+            # TASK 2: HOMO-LUMO Gap (20 points)
             task2_score = 0
             try:
                 alpha_gap_val = float(alpha_gap)
@@ -130,7 +271,7 @@ class CodeEvaluator:
                 beta_hl_ok = check_value_in_range(beta_hl, BETA_HOMO_LUMO_REF, EPSILON)
 
                 if alpha_gap_ok and beta_gap_ok and alpha_hl_ok and beta_hl_ok:
-                    task2_score = 30
+                    task2_score = 20
                     feedback_parts.append(f"✅ Task 2 (HOMO-LUMO): Perfect! All values accurate.")
                 else:
                     errors = []
@@ -152,7 +293,7 @@ class CodeEvaluator:
             except Exception as e:
                 feedback_parts.append(f"❌ Task 2 (HOMO-LUMO): Error processing - {str(e)}")
 
-            # TASK 3: QSD - Quantum State Divergence (40 points)
+            # TASK 3: QSD - Quantum State Divergence (30 points)
             task3_score = 0
             try:
                 alpha_idx = int(alpha_index)
@@ -166,7 +307,7 @@ class CodeEvaluator:
                 fidelity_correct = check_value_in_range(fid, FIDELITY_REF, EPSILON)
 
                 if indices_correct and fidelity_correct:
-                    task3_score = 40
+                    task3_score = 30
                     feedback_parts.append(f"✅ Task 3 (QSD): Perfect! Correct state matching α[{alpha_idx}]↔β[{beta_idx}], F={fid:.6f}")
                 elif indices_correct:
                     fid_error = abs((fid - FIDELITY_REF) / FIDELITY_REF) * 100
@@ -228,7 +369,7 @@ class CodeEvaluator:
             feedback = "\n".join(feedback_parts)
             passed = score >= 70
 
-            feedback += f"\n\n📊 Total Score: {score}/100 (Task1: {task1_score}/30, Task2: {task2_score}/30, Task3: {task3_score}/40, Task4: {task4_score}/15, Task5: {task5_score}/15)"
+            feedback += f"\n\n📊 Total Score: {score}/100 (Task1: {task1_score}/20, Task2: {task2_score}/20, Task3: {task3_score}/30, Task4: {task4_score}/15, Task5: {task5_score}/15)"
 
             if passed:
                 feedback += f"\n🎉 CONGRATULATIONS! You passed the challenge!"

@@ -246,7 +246,18 @@ class SubmitResultsView(views.APIView):
             )
 
         # Evaluar los resultados (sin ejecutar código)
-        if challenge_id == 35:
+        # Challenge 351-355 son tasks individuales de Challenge 35
+        if challenge_id == 351:
+            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_35_task1(results)
+        elif challenge_id == 352:
+            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_35_task2(results)
+        elif challenge_id == 353:
+            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_35_task3(results)
+        elif challenge_id == 354:
+            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_35_task4(results)
+        elif challenge_id == 355:
+            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_35_task5(results)
+        elif challenge_id == 35:
             score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_35_results(results)
         else:
             return Response(

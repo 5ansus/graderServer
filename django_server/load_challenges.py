@@ -14,18 +14,43 @@ from grader.models import Challenge
 
 challenges_data = [
     {
-        'id': 35,
-        'name': 'A Halloween Carol: Quantum Chemistry Mystery',
-        'description': '''Analyze two mysterious substances (Alpha and Beta) from a haunted laboratory using quantum chemistry techniques.
-
-Your mission involves three tasks:
-1. Use VQE to find ground state energies
-2. Calculate HOMO-LUMO gaps to determine reactivity
-3. Apply QSD with Krylov subspace to discover hidden relationships
-
-Complete the quantum chemistry analysis to uncover the truth behind these substances.''',
-        'max_score': 100,
+        'id': 351,
+        'name': 'Challenge 35 - Task 1: VQE Analysis',
+        'description': 'Use VQE to find ground state energies for Alpha and Beta molecules.',
+        'max_score': 20,
+        'difficulty': 'medium',
+        'is_active': True,
+    },
+    {
+        'id': 352,
+        'name': 'Challenge 35 - Task 2: HOMO-LUMO Gap',
+        'description': 'Calculate HOMO-LUMO gaps to determine reactivity.',
+        'max_score': 20,
+        'difficulty': 'medium',
+        'is_active': True,
+    },
+    {
+        'id': 353,
+        'name': 'Challenge 35 - Task 3: QSD Analysis',
+        'description': 'Apply QSD with Krylov subspace to discover hidden relationships.',
+        'max_score': 30,
         'difficulty': 'hard',
+        'is_active': True,
+    },
+    {
+        'id': 354,
+        'name': 'Challenge 35 - Task 4: Final Energy Beta',
+        'description': 'Calculate final energy for Beta molecule.',
+        'max_score': 15,
+        'difficulty': 'medium',
+        'is_active': True,
+    },
+    {
+        'id': 355,
+        'name': 'Challenge 35 - Task 5: Final Energy Perturbed',
+        'description': 'Calculate final energy for perturbed system.',
+        'max_score': 15,
+        'difficulty': 'medium',
         'is_active': True,
     },
 ]
