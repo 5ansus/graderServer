@@ -145,10 +145,12 @@ class CodeEvaluator:
 
         except Exception as e:
             feedback = f"❌ Evaluation error: {str(e)}\n{traceback.format_exc()}"
-            return 0, False, feedback, time.time() - start_time    @staticmethod
+            return 0, False, feedback, time.time() - start_time
+
+    @staticmethod
     def evaluate_challenge_35(code: str) -> tuple[int, bool, str, float]:
         """
-        Evalúa el Challenge 35: A Halloween Carol - Quantum Chemistry Mystery
+        Evaluates Challenge 35: A Halloween Carol - Quantum Chemistry Mystery
 
         Returns:
             tuple: (score, passed, feedback, execution_time)
@@ -156,13 +158,13 @@ class CodeEvaluator:
         start_time = time.time()
 
         try:
-            # Crear un namespace para ejecutar el código
+            # Create a namespace to execute the code
             local_scope = {}
 
-            # Ejecutar el código del usuario
+            # Execute user code
             exec(code, {}, local_scope)
 
-            # Verificar que existan las funciones/variables requeridas
+            # Check that required functions/variables exist
             required_items = [
                 'alpha_vqe_result',
                 'beta_vqe_result',
@@ -175,8 +177,8 @@ class CodeEvaluator:
             missing = [item for item in required_items if item not in local_scope]
 
             if missing:
-                feedback = f"❌ Faltan variables/resultados: {', '.join(missing)}\n"
-                feedback += "Asegúrate de ejecutar todo el notebook y tener todos los resultados."
+                feedback = f"❌ Missing variables/results: {', '.join(missing)}\n"
+                feedback += "Make sure to run the entire notebook and have all results."
                 return 0, False, feedback, time.time() - start_time
 
             # Extract results
