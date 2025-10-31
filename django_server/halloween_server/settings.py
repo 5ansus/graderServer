@@ -33,7 +33,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
-    'grader',  # Nuestra app
+    'grader.apps.GraderConfig',  # Nuestra app con configuración explícita
 ]
 
 MIDDLEWARE = [

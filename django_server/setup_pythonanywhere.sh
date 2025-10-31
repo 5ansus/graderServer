@@ -23,8 +23,13 @@ echo ""
 
 # Crear base de datos
 echo "🗄️  Creando base de datos..."
-python3.10 manage.py makemigrations
+python3.10 manage.py makemigrations grader
 python3.10 manage.py migrate
+echo ""
+
+# Verificar que las tablas existen
+echo "🔍 Verificando base de datos..."
+python3.10 manage.py showmigrations
 echo ""
 
 # Cargar challenges

@@ -11,6 +11,26 @@
 cd ~
 git clone https://github.com/5ansus/graderServer.git
 cd graderServer/django_server
+```
+
+### Paso 1b: Setup manual (si el script falla)
+```bash
+# Instalar dependencias
+pip3.10 install --user -r requirements.txt
+
+# Crear migraciones
+python3.10 manage.py makemigrations grader
+python3.10 manage.py migrate
+
+# Cargar challenges
+python3.10 load_challenges.py
+
+# Colectar estáticos
+python3.10 manage.py collectstatic --noinput
+```
+
+### O usar el script automático:
+```bash
 bash setup_pythonanywhere.sh
 ```
 
