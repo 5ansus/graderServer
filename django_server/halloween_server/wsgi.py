@@ -7,7 +7,7 @@ import sys
 
 # Añade el directorio del proyecto al path
 # IMPORTANTE: Cambia 'YOUR_USERNAME' por tu nombre de usuario en PythonAnywhere
-project_home = '/home/YOUR_USERNAME/HaloweenServer/django_server'
+project_home = '/home/YOUR_USERNAME/graderServer/django_server'
 if project_home not in sys.path:
     sys.path.insert(0, project_home)
 

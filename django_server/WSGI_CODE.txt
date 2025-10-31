@@ -20,8 +20,8 @@ import sys
 
 # Añade el path de tu proyecto Django
 # IMPORTANTE: Reemplaza 'YOUR_USERNAME' con tu nombre de usuario de PythonAnywhere
-# Ejemplo: si tu usuario es 'UAMCPrA', pon: '/home/UAMCPrA/HaloweenServer/django_server'
-path = '/home/YOUR_USERNAME/HaloweenServer/django_server'
+# Ejemplo: si tu usuario es 'UAMCPrA', pon: '/home/UAMCPrA/graderServer/django_server'
+path = '/home/YOUR_USERNAME/graderServer/django_server'
 if path not in sys.path:
     sys.path.insert(0, path)
 

@@ -7,8 +7,8 @@
 
 ## Paso 1: Subir el código
 - [ ] Abrir consola Bash en PythonAnywhere
-- [ ] Ejecutar: `git clone URL_DE_TU_REPO HaloweenServer`
-- [ ] Ejecutar: `cd HaloweenServer/django_server`
+- [ ] Ejecutar: `git clone https://github.com/5ansus/graderServer.git`
+- [ ] Ejecutar: `cd graderServer/django_server`
 
 ## Paso 2: Setup automático
 - [ ] Ejecutar: `bash setup_pythonanywhere.sh`
@@ -34,7 +34,7 @@
 - [ ] En pestaña "Web", sección "Static files"
 - [ ] Añadir entrada:
   - URL: `/static/`
-  - Directory: `/home/YOUR_USERNAME/HaloweenServer/django_server/staticfiles`
+  - Directory: `/home/YOUR_USERNAME/graderServer/django_server/staticfiles`
 
 ## Paso 6: Reload
 - [ ] Click en botón verde "Reload YOUR_USERNAME.pythonanywhere.com"
@@ -75,7 +75,7 @@
 
 ### Para actualizar código:
 ```bash
-cd ~/HaloweenServer
+cd ~/graderServer
 git pull
 # Click "Reload" en pestaña Web
 ```

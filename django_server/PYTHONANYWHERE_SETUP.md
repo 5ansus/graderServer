@@ -10,14 +10,14 @@ En la consola Bash de PythonAnywhere:
 
 ```bash
 cd ~
-git clone https://github.com/TU_USUARIO/TU_REPO.git HaloweenServer
-cd HaloweenServer/django_server
+git clone https://github.com/5ansus/graderServer.git
+cd graderServer/django_server
 ```
 
 #### Opción B: Subir archivos manualmente
 
 1. Ve a la pestaña **"Files"** en PythonAnywhere
-2. Crea directorio `HaloweenServer`
+2. Crea directorio `graderServer`
 3. Sube toda la carpeta `django_server`
 
 ---
@@ -27,7 +27,7 @@ cd HaloweenServer/django_server
 En la consola Bash de PythonAnywhere:
 
 ```bash
-cd ~/HaloweenServer/django_server
+cd ~/graderServer/django_server
 pip3.10 install --user -r requirements.txt
 ```
 
@@ -42,7 +42,7 @@ Esto instalará:
 ### 3️⃣ Configurar la base de datos
 
 ```bash
-cd ~/HaloweenServer/django_server
+cd ~/graderServer/django_server
 python3.10 manage.py makemigrations
 python3.10 manage.py migrate
 ```
@@ -108,7 +108,7 @@ import sys
 
 # Añade el path de tu proyecto Django
 # IMPORTANTE: Reemplaza 'YOUR_USERNAME' con tu nombre de usuario de PythonAnywhere
-path = '/home/YOUR_USERNAME/HaloweenServer/django_server'
+path = '/home/YOUR_USERNAME/graderServer/django_server'
 if path not in sys.path:
     sys.path.insert(0, path)
 
@@ -122,7 +122,7 @@ application = get_wsgi_application()
 
 **Ejemplo real**: Si tu usuario es `UAMCPrA`, quedaría:
 ```python
-path = '/home/UAMCPrA/HaloweenServer/django_server'
+path = '/home/UAMCPrA/graderServer/django_server'
 ```
 
 6. Click **"Save"** (arriba a la derecha)
@@ -137,12 +137,12 @@ Click en **"Enter URL"** y **"Enter path"** para añadir:
 
 | URL | Directory |
 |-----|-----------|
-| `/static/` | `/home/YOUR_USERNAME/HaloweenServer/django_server/staticfiles` |
+| `/static/` | `/home/YOUR_USERNAME/graderServer/django_server/staticfiles` |
 | `/admin/static/` | `/home/YOUR_USERNAME/.local/lib/python3.10/site-packages/django/contrib/admin/static` |
 
 Luego en la consola Bash:
 ```bash
-cd ~/HaloweenServer/django_server
+cd ~/graderServer/django_server
 python3.10 manage.py collectstatic --noinput
 ```
 
@@ -238,7 +238,7 @@ En PythonAnywhere, pestaña "Web" → **"Error log"** (click para ver)
 
 ### Actualizar código después de cambios
 ```bash
-cd ~/HaloweenServer
+cd ~/graderServer
 git pull
 cd django_server
 python3.10 manage.py migrate  # Si hay cambios en modelos
@@ -255,7 +255,7 @@ Luego en la pestaña "Web": **Click "Reload"**
 
 ### Ver la base de datos
 ```bash
-cd ~/HaloweenServer/django_server
+cd ~/graderServer/django_server
 python3.10 manage.py dbshell
 ```
 
@@ -272,7 +272,7 @@ pip3.10 install --user djangorestframework django-cors-headers
 
 ### Error: "OperationalError: no such table"
 ```bash
-cd ~/HaloweenServer/django_server
+cd ~/graderServer/django_server
 python3.10 manage.py migrate
 ```
 
@@ -300,7 +300,7 @@ python3.10 manage.py createsuperuser
 
 ```
 /home/YOUR_USERNAME/
-└── HaloweenServer/
+└── graderServer/
     └── django_server/
         ├── manage.py
         ├── db.sqlite3                    ← Base de datos
@@ -336,7 +336,7 @@ Tu API está funcionando en:
    ```
 3. **En PythonAnywhere**:
    ```bash
-   cd ~/HaloweenServer
+   cd ~/graderServer
    git pull
    ```
 4. **Reload** en la pestaña Web

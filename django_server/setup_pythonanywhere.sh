@@ -12,7 +12,7 @@ echo "✓ Usuario detectado: $USERNAME"
 echo ""
 
 # Ir al directorio del proyecto
-cd ~/HaloweenServer/django_server
+cd ~/graderServer/django_server
 echo "✓ Directorio: $(pwd)"
 echo ""
 
@@ -44,11 +44,11 @@ echo "1. Crea un superusuario con:"
 echo "   python3.10 manage.py createsuperuser"
 echo ""
 echo "2. Configura el archivo WSGI en la pestaña Web con:"
-echo "   path = '/home/$USERNAME/HaloweenServer/django_server'"
+echo "   path = '/home/$USERNAME/graderServer/django_server'"
 echo ""
 echo "3. Configura archivos estáticos en la pestaña Web:"
 echo "   URL: /static/"
-echo "   Directory: /home/$USERNAME/HaloweenServer/django_server/staticfiles"
+echo "   Directory: /home/$USERNAME/graderServer/django_server/staticfiles"
 echo ""
 echo "4. Haz click en 'Reload' en la pestaña Web"
 echo ""
