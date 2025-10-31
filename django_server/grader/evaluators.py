@@ -1,6 +1,6 @@
 """
-Sistema de evaluación de código para cada challenge.
-Añade aquí la lógica específica para evaluar cada ejercicio.
+Code evaluation system for each challenge.
+Add specific logic here to evaluate each exercise.
 """
 
 import time
@@ -11,16 +11,16 @@ import traceback
 
 class CodeEvaluator:
     """
-    Clase base para evaluar código de submissions.
+    Base class for evaluating submissions.
     """
 
     @staticmethod
     def evaluate_challenge_35_results(results: dict) -> tuple[int, bool, str, float]:
         """
-        Evalúa el Challenge 35 usando SOLO los resultados (sin ejecutar código).
+        Evaluates Challenge 35 using ONLY results (no code execution).
 
         Args:
-            results: Diccionario con las variables requeridas
+            results: Dictionary with required variables
 
         Returns:
             tuple: (score, passed, feedback, execution_time)
@@ -28,7 +28,7 @@ class CodeEvaluator:
         start_time = time.time()
 
         try:
-            # Verificar que existan las variables requeridas
+            # Check that required variables exist
             required_items = [
                 'alpha_vqe_result',
                 'beta_vqe_result',
@@ -41,11 +41,9 @@ class CodeEvaluator:
             missing = [item for item in required_items if item not in results]
 
             if missing:
-                feedback = f"❌ Faltan resultados: {', '.join(missing)}\n"
-                feedback += "Debes enviar todas las variables requeridas."
-                return 0, False, feedback, time.time() - start_time
-
-            # Extraer resultados
+                feedback = f"❌ Missing results: {', '.join(missing)}\n"
+                feedback += "You must send all required variables."
+                return 0, False, feedback, time.time() - start_time            # Extraer resultados
             alpha_vqe = results.get('alpha_vqe_result')
             beta_vqe = results.get('beta_vqe_result')
             alpha_gap = results.get('alpha_gap_ev')
@@ -53,67 +51,65 @@ class CodeEvaluator:
             alpha_homo_lumo = results.get('alpha_homo_lumo')
             beta_homo_lumo = results.get('beta_homo_lumo')
 
-            # Sistema de puntuación
+            # Scoring system
             score = 0
             feedback_parts = []
 
-            # Valores de referencia (aproximados)
-            ALPHA_VQE_REF = -2.1847  # Ground state energy aproximada
+            # Reference values (approximate)
+            ALPHA_VQE_REF = -2.1847  # Approximate ground state energy
             BETA_VQE_REF = 0.9375
 
-            # Task 1: VQE Analysis (30 puntos)
+            # Task 1: VQE Analysis (30 points)
             if alpha_vqe is not None and beta_vqe is not None:
                 try:
                     alpha_energy = float(alpha_vqe)
                     beta_energy = float(beta_vqe)
 
-                    # Verificar proximidad a valores de referencia
+                    # Check proximity to reference values
                     alpha_error = abs(alpha_energy - ALPHA_VQE_REF)
                     beta_error = abs(beta_energy - BETA_VQE_REF)
 
                     if alpha_error < 0.1 and beta_error < 0.1:
                         score += 30
-                        feedback_parts.append("✅ Task 1 (VQE): Excelente! Energías muy precisas.")
+                        feedback_parts.append("✅ Task 1 (VQE): Excellent! Very accurate energies.")
                     elif alpha_error < 0.5 and beta_error < 0.5:
                         score += 20
-                        feedback_parts.append("⚠️ Task 1 (VQE): Buenas energías, pero pueden mejorar la precisión.")
+                        feedback_parts.append("⚠️ Task 1 (VQE): Good energies, but precision can be improved.")
                     else:
                         score += 10
-                        feedback_parts.append("⚠️ Task 1 (VQE): Energías calculadas pero alejadas del valor esperado.")
+                        feedback_parts.append("⚠️ Task 1 (VQE): Energies calculated but far from expected value.")
                 except:
-                    feedback_parts.append("❌ Task 1 (VQE): Error al procesar energías VQE.")
+                    feedback_parts.append("❌ Task 1 (VQE): Error processing VQE energies.")
             else:
-                feedback_parts.append("❌ Task 1 (VQE): No se encontraron resultados VQE.")
-
-            # Task 2: HOMO-LUMO Gap (30 puntos)
+                feedback_parts.append("❌ Task 1 (VQE): VQE results not found.")            # Task 2: HOMO-LUMO Gap (30 points)
             if alpha_gap is not None and beta_gap is not None:
                 try:
                     alpha_gap_val = float(alpha_gap)
                     beta_gap_val = float(beta_gap)
 
-                    # Los gaps deben ser positivos y razonables (0-10 eV típicamente)
+                    # Gaps should be positive and reasonable (0-15 eV typically)
                     if 0 < alpha_gap_val < 15 and 0 < beta_gap_val < 15:
                         score += 30
-                        feedback_parts.append(f"✅ Task 2 (HOMO-LUMO): Perfecto! Alpha gap: {alpha_gap_val:.2f} eV, Beta gap: {beta_gap_val:.2f} eV")
+                        feedback_parts.append(f"✅ Task 2 (HOMO-LUMO): Perfect! Alpha gap: {alpha_gap_val:.2f} eV, Beta gap: {beta_gap_val:.2f} eV")
 
-                        # Bonus por interpretación correcta
+                        # Bonus for correct interpretation
                         if beta_gap_val < alpha_gap_val:
-                            feedback_parts.append("   💡 Beta es más reactivo que Alpha (gap menor)")
+                            feedback_parts.append("   💡 Beta is more reactive than Alpha (smaller gap)")
                     else:
                         score += 15
-                        feedback_parts.append("⚠️ Task 2 (HOMO-LUMO): Gaps calculados pero valores inusuales.")
+                        feedback_parts.append("⚠️ Task 2 (HOMO-LUMO): Gaps calculated but unusual values.")
                 except:
-                    feedback_parts.append("❌ Task 2 (HOMO-LUMO): Error al procesar gaps.")
+                    feedback_parts.append("❌ Task 2 (HOMO-LUMO): Error processing gaps.")
             else:
-                feedback_parts.append("❌ Task 2 (HOMO-LUMO): No se encontraron valores de gap.")
+                feedback_parts.append("❌ Task 2 (HOMO-LUMO): Gap values not found.")
 
-            # Task 3: Quantum State Divergence (40 puntos)
+            # Task 3: Quantum State Divergence (40 points)
             if alpha_homo_lumo is not None and beta_homo_lumo is not None:
                 try:
                     alpha_hl = float(alpha_homo_lumo)
                     beta_hl = float(beta_homo_lumo)
 
-                    # Verificar consistencia con gaps en eV
+                    # Check consistency with gaps in eV
                     if alpha_gap is not None and beta_gap is not None:
                         expected_alpha = alpha_gap_val / 27.211  # eV to Hartree
                         expected_beta = beta_gap_val / 27.211
@@ -123,35 +119,33 @@ class CodeEvaluator:
 
                         if alpha_consistency and beta_consistency:
                             score += 40
-                            feedback_parts.append("✅ Task 3 (QSD): Excelente! Análisis completo y consistente.")
+                            feedback_parts.append("✅ Task 3 (QSD): Excellent! Complete and consistent analysis.")
                         else:
                             score += 25
-                            feedback_parts.append("⚠️ Task 3 (QSD): Resultados presentes pero inconsistencias en unidades.")
+                            feedback_parts.append("⚠️ Task 3 (QSD): Results present but inconsistencies in units.")
                     else:
                         score += 20
-                        feedback_parts.append("⚠️ Task 3 (QSD): Valores presentes pero faltan datos para verificar.")
+                        feedback_parts.append("⚠️ Task 3 (QSD): Values present but missing data for verification.")
                 except:
                     score += 10
-                    feedback_parts.append("⚠️ Task 3 (QSD): Error al validar resultados.")
+                    feedback_parts.append("⚠️ Task 3 (QSD): Error validating results.")
             else:
-                feedback_parts.append("❌ Task 3 (QSD): No se encontraron análisis de divergencia cuántica.")
+                feedback_parts.append("❌ Task 3 (QSD): Quantum state divergence analysis not found.")
 
-            # Feedback final
+            # Final feedback
             feedback = "\n".join(feedback_parts)
             passed = score >= 70
 
             if passed:
-                feedback += f"\n\n🎉 ¡FELICIDADES! Has completado el challenge con {score}/100 puntos."
+                feedback += f"\n\n🎉 CONGRATULATIONS! You completed the challenge with {score}/100 points."
             else:
-                feedback += f"\n\n📚 Necesitas ≥70 puntos para pasar. Tienes {score}/100."
+                feedback += f"\n\n📚 You need ≥70 points to pass. You have {score}/100."
 
             return score, passed, feedback, time.time() - start_time
 
         except Exception as e:
-            feedback = f"❌ Error al evaluar: {str(e)}\n{traceback.format_exc()}"
-            return 0, False, feedback, time.time() - start_time
-
-    @staticmethod
+            feedback = f"❌ Evaluation error: {str(e)}\n{traceback.format_exc()}"
+            return 0, False, feedback, time.time() - start_time    @staticmethod
     def evaluate_challenge_35(code: str) -> tuple[int, bool, str, float]:
         """
         Evalúa el Challenge 35: A Halloween Carol - Quantum Chemistry Mystery
@@ -185,7 +179,7 @@ class CodeEvaluator:
                 feedback += "Asegúrate de ejecutar todo el notebook y tener todos los resultados."
                 return 0, False, feedback, time.time() - start_time
 
-            # Extraer resultados
+            # Extract results
             alpha_vqe = local_scope.get('alpha_vqe_result')
             beta_vqe = local_scope.get('beta_vqe_result')
             alpha_gap = local_scope.get('alpha_gap_ev')
@@ -193,67 +187,67 @@ class CodeEvaluator:
             alpha_homo_lumo = local_scope.get('alpha_homo_lumo')
             beta_homo_lumo = local_scope.get('beta_homo_lumo')
 
-            # Sistema de puntuación
+            # Scoring system
             score = 0
             feedback_parts = []
 
-            # Task 1: VQE Analysis (30 puntos)
+            # Task 1: VQE Analysis (30 points)
             if alpha_vqe is not None and beta_vqe is not None:
-                # Verificar que los resultados sean razonables
+                # Verify results are reasonable
                 try:
                     alpha_energy = float(alpha_vqe.eigenvalue) if hasattr(alpha_vqe, 'eigenvalue') else float(alpha_vqe)
                     beta_energy = float(beta_vqe.eigenvalue) if hasattr(beta_vqe, 'eigenvalue') else float(beta_vqe)
 
-                    # Los valores deben estar en un rango razonable para química cuántica
+                    # Values should be in reasonable range for quantum chemistry
                     if -10 < alpha_energy < 0 and -10 < beta_energy < 0:
                         score += 30
-                        feedback_parts.append("✅ Task 1 (VQE): Excelente! Energías calculadas correctamente.")
+                        feedback_parts.append("✅ Task 1 (VQE): Excellent! Energies calculated correctly.")
                     else:
                         score += 15
-                        feedback_parts.append("⚠️ Task 1 (VQE): Energías calculadas pero parecen fuera de rango.")
+                        feedback_parts.append("⚠️ Task 1 (VQE): Energies calculated but seem out of range.")
                 except:
                     score += 10
-                    feedback_parts.append("⚠️ Task 1 (VQE): Resultados parciales.")
+                    feedback_parts.append("⚠️ Task 1 (VQE): Partial results.")
             else:
-                feedback_parts.append("❌ Task 1 (VQE): No se encontraron resultados VQE.")
+                feedback_parts.append("❌ Task 1 (VQE): VQE results not found.")
 
-            # Task 2: HOMO-LUMO Gap (30 puntos)
+            # Task 2: HOMO-LUMO Gap (30 points)
             if alpha_gap is not None and beta_gap is not None:
                 try:
                     alpha_gap_val = float(alpha_gap)
                     beta_gap_val = float(beta_gap)
 
-                    # Los gaps deben ser positivos y razonables (0-10 eV típicamente)
+                    # Gaps should be positive and reasonable (0-15 eV typically)
                     if 0 < alpha_gap_val < 15 and 0 < beta_gap_val < 15:
                         score += 30
-                        feedback_parts.append(f"✅ Task 2 (HOMO-LUMO): Perfecto! Alpha gap: {alpha_gap_val:.2f} eV, Beta gap: {beta_gap_val:.2f} eV")
+                        feedback_parts.append(f"✅ Task 2 (HOMO-LUMO): Perfect! Alpha gap: {alpha_gap_val:.2f} eV, Beta gap: {beta_gap_val:.2f} eV")
 
-                        # Bonus por interpretación correcta
+                        # Bonus for correct interpretation
                         if beta_gap_val < alpha_gap_val:
-                            feedback_parts.append("   💡 Beta es más reactivo que Alpha (gap menor)")
+                            feedback_parts.append("   💡 Beta is more reactive than Alpha (smaller gap)")
                     else:
                         score += 15
-                        feedback_parts.append("⚠️ Task 2 (HOMO-LUMO): Gaps calculados pero valores inusuales.")
+                        feedback_parts.append("⚠️ Task 2 (HOMO-LUMO): Gaps calculated but unusual values.")
                 except:
                     score += 10
-                    feedback_parts.append("⚠️ Task 2 (HOMO-LUMO): Error al procesar los gaps.")
+                    feedback_parts.append("⚠️ Task 2 (HOMO-LUMO): Error processing gaps.")
             else:
-                feedback_parts.append("❌ Task 2 (HOMO-LUMO): No se encontraron cálculos de gap.")
+                feedback_parts.append("❌ Task 2 (HOMO-LUMO): Gap calculations not found.")
 
-            # Task 3: QSD Analysis (40 puntos)
-            # Este es el más complejo, verificamos que al menos se haya intentado
+            # Task 3: QSD Analysis (40 points)
+            # This is the most complex, verify at least an attempt was made
             qsd_indicators = ['V_alpha', 'V_beta', 'evals_alpha', 'evals_beta', 'fidelity_matrix']
             qsd_present = sum(1 for item in qsd_indicators if item in local_scope)
 
             if qsd_present >= 3:
                 score += 40
-                feedback_parts.append("✅ Task 3 (QSD): Excelente! Análisis de subespacio cuántico completado.")
+                feedback_parts.append("✅ Task 3 (QSD): Excellent! Quantum subspace analysis completed.")
             elif qsd_present >= 2:
                 score += 25
-                feedback_parts.append("⚠️ Task 3 (QSD): Análisis parcial de QSD.")
+                feedback_parts.append("⚠️ Task 3 (QSD): Partial QSD analysis.")
             elif qsd_present >= 1:
                 score += 15
-                feedback_parts.append("⚠️ Task 3 (QSD): Inicio de análisis QSD detectado.")
+                feedback_parts.append("⚠️ Task 3 (QSD): QSD analysis started detected.")
             else:
                 feedback_parts.append("❌ Task 3 (QSD): No se encontró análisis QSD.")
 
@@ -283,11 +277,12 @@ class CodeEvaluator:
     @staticmethod
     def evaluate(challenge_id: int, code: str) -> tuple[int, bool, str, float]:
         """
-        Método principal para evaluar código según el challenge.
+        """
+        Main method to evaluate code according to challenge.
 
         Args:
-            challenge_id: ID del challenge
-            code: Código a evaluar
+            challenge_id: Challenge ID
+            code: Code to evaluate
 
         Returns:
             tuple: (score, passed, feedback, execution_time)
@@ -299,15 +294,17 @@ class CodeEvaluator:
         evaluator = evaluators.get(challenge_id)
 
         if not evaluator:
-            return 0, False, f"❌ No hay evaluador para challenge {challenge_id}. Solo el Challenge 35 está disponible.", 0.0
+            return 0, False, f"❌ No evaluator for challenge {challenge_id}. Only Challenge 35 is available.", 0.0
 
         try:
             return evaluator(code)
         except Exception as e:
-            return 0, False, f"❌ Error crítico en evaluación: {str(e)}", 0.0
-# Función helper para capturar stdout durante la ejecución
+            return 0, False, f"❌ Critical evaluation error: {str(e)}", 0.0
+
+
+# Helper function to capture stdout during execution
 def capture_stdout(func, *args, **kwargs):
-    """Captura el stdout durante la ejecución de una función"""
+    """Captures stdout during function execution"""
     old_stdout = sys.stdout
     sys.stdout = StringIO()
 

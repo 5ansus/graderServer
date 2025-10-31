@@ -147,7 +147,7 @@ def submit(challenge_id: int, code: str) -> Dict[str, Any]:
 
     passed_emoji = "✅" if response.get('passed') else "❌"
     print(f"\n{passed_emoji} Score: {response.get('score', 0)}/{response.get('max_score', 100)}")
-    print(f"Feedback: {response.get('feedback', 'Sin feedback')}\n")
+    print(f"Feedback: {response.get('feedback', 'No feedback')}\n")
 
     return response
 
@@ -172,11 +172,9 @@ def submit_results(challenge_id: int, **results) -> Dict[str, Any]:
 
     passed_emoji = "✅" if response.get('passed') else "❌"
     print(f"\n{passed_emoji} Score: {response.get('score', 0)}/{response.get('max_score', 100)}")
-    print(f"Feedback: {response.get('feedback', 'Sin feedback')}\n")
+    print(f"Feedback: {response.get('feedback', 'No feedback')}\n")
 
     return response
-
-
 def submit_function(challenge_id: int, func):
     import inspect
     code = inspect.getsource(func)

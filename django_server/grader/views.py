@@ -21,12 +21,12 @@ class IndexView(views.APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        """Vista principal de la API"""
+        """Main API view"""
         total_users = User.objects.count()
         total_challenges = Challenge.objects.filter(is_active=True).count()
         total_submissions = Submission.objects.count()
 
-        # Si se solicita HTML (navegador), renderizar template
+        # If HTML is requested (browser), render template
         if 'text/html' in request.headers.get('Accept', ''):
             context = {
                 'stats': {
@@ -37,7 +37,7 @@ class IndexView(views.APIView):
             }
             return render(request, 'index.html', context)
 
-        # Si se solicita JSON (API), devolver JSON
+        # If JSON is requested (API), return JSON
         data = {
             'message': '🎃 Halloween Qiskit Challenge API',
             'version': '1.0',
