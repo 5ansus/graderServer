@@ -121,6 +121,24 @@ class SubmitCodeSerializer(serializers.Serializer):
         return value
 
 
+class SubmitResultsSerializer(serializers.Serializer):
+    """Serializer para enviar solo resultados (sin código)"""
+    challenge_id = serializers.IntegerField()
+    results = serializers.DictField()
+
+    def validate_challenge_id(self, value):
+        if not Challenge.objects.filter(id=value, is_active=True).exists():
+            raise serializers.ValidationError("Challenge not found or not active")
+        return value
+
+    def validate_results(self, value):
+        if not isinstance(value, dict):
+            raise serializers.ValidationError("Results must be a dictionary")
+        if len(value) == 0:
+            raise serializers.ValidationError("Results cannot be empty")
+        return value
+
+
 class LeaderboardSerializer(serializers.Serializer):
     username = serializers.CharField()
     total_score = serializers.IntegerField()

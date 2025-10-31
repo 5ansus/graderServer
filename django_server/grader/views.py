@@ -10,7 +10,7 @@ from .models import Challenge, Submission, UserProfile
 from .serializers import (
     UserSerializer, RegisterSerializer, LoginSerializer,
     ChallengeSerializer, SubmissionSerializer, SubmitCodeSerializer,
-    LeaderboardSerializer, ProgressSerializer
+    SubmitResultsSerializer, LeaderboardSerializer, ProgressSerializer
 )
 from .evaluators import CodeEvaluator
 
@@ -205,6 +205,61 @@ class SubmitCodeView(views.APIView):
             user=request.user,
             challenge=challenge,
             code=code,
+            score=score,
+            passed=passed,
+            feedback=feedback,
+            execution_time=execution_time
+        )
+
+        return Response({
+            'submission_id': submission.id,
+            'score': score,
+            'max_score': challenge.max_score,
+            'passed': passed,
+            'feedback': feedback,
+            'execution_time': round(execution_time, 3)
+        }, status=status.HTTP_200_OK)
+
+
+class SubmitResultsView(views.APIView):
+    """
+    Endpoint ligero: solo recibe resultados finales, sin ejecutar código.
+    Ideal para challenges pesados donde el usuario ejecuta localmente.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = SubmitResultsSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response({'error': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        challenge_id = serializer.validated_data['challenge_id']
+        results = serializer.validated_data['results']
+
+        try:
+            challenge = Challenge.objects.get(id=challenge_id, is_active=True)
+        except Challenge.DoesNotExist:
+            return Response(
+                {'error': 'Challenge not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Evaluar los resultados (sin ejecutar código)
+        if challenge_id == 35:
+            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_35_results(results)
+        else:
+            return Response(
+                {'error': 'This challenge does not support results-only submission'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Guardar la submission (con código vacío o JSON de resultados)
+        import json
+        submission = Submission.objects.create(
+            user=request.user,
+            challenge=challenge,
+            code=f"# Results submission\n{json.dumps(results, indent=2)}",
             score=score,
             passed=passed,
             feedback=feedback,

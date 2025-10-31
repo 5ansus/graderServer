@@ -48,7 +48,7 @@ def _get_headers() -> Dict[str, str]:
         raise GraderError(
             "Whoah, u are not authentificated. Use login('username', 'password') first :)"
         )
-    return {"Authorization": f"Bearer {token}"}
+    return {"Authorization": f"Token {token}"}
 
 def _make_request(method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
     url = f"{BASE_URL}{endpoint}"
@@ -140,9 +140,35 @@ def get_challenge(challenge_id: int) -> Dict[str, Any]:
 # ==================== SUBMISSIONS ====================
 
 def submit(challenge_id: int, code: str) -> Dict[str, Any]:
+    """Submit code to be executed on the server (legacy method)"""
     response = _make_request('POST', '/submit',
                             headers=_get_headers(),
                             json={'challenge_id': challenge_id, 'code': code})
+
+    passed_emoji = "✅" if response.get('passed') else "❌"
+    print(f"\n{passed_emoji} Score: {response.get('score', 0)}/{response.get('max_score', 100)}")
+    print(f"Feedback: {response.get('feedback', 'Sin feedback')}\n")
+
+    return response
+
+
+def submit_results(challenge_id: int, **results) -> Dict[str, Any]:
+    """
+    Submit only the results (lightweight, no code execution on server).
+
+    Example for Challenge 35:
+        submit_results(35,
+            alpha_vqe_result=-2.1847,
+            beta_vqe_result=0.9375,
+            alpha_gap_ev=33.57,
+            beta_gap_ev=27.21,
+            alpha_homo_lumo=1.234,
+            beta_homo_lumo=1.0
+        )
+    """
+    response = _make_request('POST', '/submit-results',
+                            headers=_get_headers(),
+                            json={'challenge_id': challenge_id, 'results': results})
 
     passed_emoji = "✅" if response.get('passed') else "❌"
     print(f"\n{passed_emoji} Score: {response.get('score', 0)}/{response.get('max_score', 100)}")

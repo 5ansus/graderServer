@@ -3,7 +3,7 @@ from .views import (
     IndexView,
     RegisterView, LoginView, ProfileView,
     ChallengeListView, ChallengeDetailView,
-    SubmitCodeView, SubmissionListView, SubmissionDetailView,
+    SubmitCodeView, SubmitResultsView, SubmissionListView, SubmissionDetailView,
     LeaderboardView, ProgressView, StatsView,
     HealthCheckView
 )
@@ -23,6 +23,7 @@ urlpatterns = [
 
     # Submissions
     path('submit', SubmitCodeView.as_view(), name='submit'),
+    path('submit-results', SubmitResultsView.as_view(), name='submit-results'),  # Nuevo endpoint ligero
     path('submissions', SubmissionListView.as_view(), name='submissions'),
     path('submissions/<int:pk>', SubmissionDetailView.as_view(), name='submission-detail'),
 
