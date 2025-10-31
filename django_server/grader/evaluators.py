@@ -33,7 +33,9 @@ class CodeEvaluator:
             required_items = {
                 'task1': ['alpha_vqe_result', 'beta_vqe_result'],
                 'task2': ['alpha_gap_ev', 'beta_gap_ev', 'alpha_homo_lumo', 'beta_homo_lumo'],
-                'task3': ['alpha_index', 'beta_index', 'fidelity']
+                'task3': ['alpha_index', 'beta_index', 'fidelity'],
+                'task4': ['final_energy_beta'],
+                'task5': ['final_energy_perturbed']
             }
 
             # Flatten all required items
@@ -45,7 +47,7 @@ class CodeEvaluator:
 
             if missing:
                 feedback = f"❌ Missing results: {', '.join(missing)}\n"
-                feedback += "You must send all required variables for all 3 tasks."
+                feedback += "You must send all required variables for all 5 tasks."
                 return 0, False, feedback, time.time() - start_time
 
             # Extract results
@@ -58,6 +60,8 @@ class CodeEvaluator:
             alpha_index = results.get('alpha_index')
             beta_index = results.get('beta_index')
             fidelity = results.get('fidelity')
+            final_energy_beta = results.get('final_energy_beta')
+            final_energy_perturbed = results.get('final_energy_perturbed')
 
             # Scoring system
             score = 0
@@ -69,10 +73,25 @@ class CodeEvaluator:
             ALPHA_GAP_EV_REF = 52.00319191407749
             BETA_GAP_EV_REF = 27.211399999999994
             ALPHA_HOMO_LUMO_REF = 1.9110810878557327
-            BETA_HOMO_LUMO_REF = 1.0  # Can be 0.9999999999999998 or 1
+            BETA_HOMO_LUMO_REF = 1.0
             ALPHA_INDEX_REF = 1
             BETA_INDEX_REF = 0
             FIDELITY_REF = 1.0
+            FINAL_ENERGY_BETA_REF = 0.0006559581843628555
+            FINAL_ENERGY_PERTURBED_REF = -12.294612921331247
+
+            # Error margin (epsilon) - 1% for all tasks
+            EPSILON = 0.01
+
+            def check_value_in_range(value, reference, epsilon):
+                """Check if value is within epsilon% of reference (handles negative values)"""
+                if reference < 0:
+                    lower = reference * (1 + epsilon)
+                    upper = reference * (1 - epsilon)
+                else:
+                    lower = reference * (1 - epsilon)
+                    upper = reference * (1 + epsilon)
+                return lower <= value <= upper
 
             # TASK 1: VQE Analysis (30 points)
             task1_score = 0
@@ -80,23 +99,17 @@ class CodeEvaluator:
                 alpha_energy = float(alpha_vqe)
                 beta_energy = float(beta_vqe)
 
-                # Check proximity to reference values
-                alpha_error = abs(alpha_energy - ALPHA_VQE_REF)
-                beta_error = abs(beta_energy - BETA_VQE_REF)
+                # Check if values are within epsilon range
+                alpha_in_range = check_value_in_range(alpha_energy, ALPHA_VQE_REF, EPSILON)
+                beta_in_range = check_value_in_range(beta_energy, BETA_VQE_REF, EPSILON)
 
-                # Relative error for better scoring
-                alpha_rel_error = alpha_error / abs(ALPHA_VQE_REF) if ALPHA_VQE_REF != 0 else alpha_error
-                beta_rel_error = beta_error / abs(BETA_VQE_REF) if BETA_VQE_REF != 0 else beta_error
-
-                if alpha_rel_error < 0.01 and beta_rel_error < 0.1:
+                if alpha_in_range and beta_in_range:
                     task1_score = 30
                     feedback_parts.append(f"✅ Task 1 (VQE): Perfect! α={alpha_energy:.8f}, β={beta_energy:.8f}")
-                elif alpha_rel_error < 0.05 and beta_rel_error < 0.5:
-                    task1_score = 20
-                    feedback_parts.append(f"⚠️ Task 1 (VQE): Good, but can improve precision. α={alpha_energy:.8f}, β={beta_energy:.8f}")
                 else:
-                    task1_score = 10
-                    feedback_parts.append(f"⚠️ Task 1 (VQE): Calculated but far from reference. α={alpha_energy:.8f}, β={beta_energy:.8f}")
+                    alpha_error = abs((alpha_energy - ALPHA_VQE_REF) / ALPHA_VQE_REF) * 100
+                    beta_error = abs((beta_energy - BETA_VQE_REF) / BETA_VQE_REF) * 100
+                    feedback_parts.append(f"❌ Task 1 (VQE): Outside acceptable range. α error: {alpha_error:.2f}%, β error: {beta_error:.2f}%")
 
                 score += task1_score
             except Exception as e:
@@ -110,31 +123,30 @@ class CodeEvaluator:
                 alpha_hl = float(alpha_homo_lumo)
                 beta_hl = float(beta_homo_lumo)
 
-                # Check gaps
-                gap_error_alpha = abs(alpha_gap_val - ALPHA_GAP_EV_REF)
-                gap_error_beta = abs(beta_gap_val - BETA_GAP_EV_REF)
+                # Check if all values are within epsilon range
+                alpha_gap_ok = check_value_in_range(alpha_gap_val, ALPHA_GAP_EV_REF, EPSILON)
+                beta_gap_ok = check_value_in_range(beta_gap_val, BETA_GAP_EV_REF, EPSILON)
+                alpha_hl_ok = check_value_in_range(alpha_hl, ALPHA_HOMO_LUMO_REF, EPSILON)
+                beta_hl_ok = check_value_in_range(beta_hl, BETA_HOMO_LUMO_REF, EPSILON)
 
-                # Check HOMO-LUMO values
-                hl_error_alpha = abs(alpha_hl - ALPHA_HOMO_LUMO_REF)
-                hl_error_beta = abs(beta_hl - BETA_HOMO_LUMO_REF)
-
-                # Relative errors
-                gap_rel_alpha = gap_error_alpha / ALPHA_GAP_EV_REF
-                gap_rel_beta = gap_error_beta / BETA_GAP_EV_REF
-                hl_rel_alpha = hl_error_alpha / ALPHA_HOMO_LUMO_REF
-                hl_rel_beta = hl_error_beta / BETA_HOMO_LUMO_REF
-
-                if (gap_rel_alpha < 0.01 and gap_rel_beta < 0.01 and
-                    hl_rel_alpha < 0.01 and hl_rel_beta < 0.01):
+                if alpha_gap_ok and beta_gap_ok and alpha_hl_ok and beta_hl_ok:
                     task2_score = 30
                     feedback_parts.append(f"✅ Task 2 (HOMO-LUMO): Perfect! All values accurate.")
-                elif (gap_rel_alpha < 0.05 and gap_rel_beta < 0.05 and
-                      hl_rel_alpha < 0.05 and hl_rel_beta < 0.05):
-                    task2_score = 20
-                    feedback_parts.append(f"⚠️ Task 2 (HOMO-LUMO): Good, small deviations present.")
                 else:
-                    task2_score = 10
-                    feedback_parts.append(f"⚠️ Task 2 (HOMO-LUMO): Calculated but significant deviations.")
+                    errors = []
+                    if not alpha_gap_ok:
+                        err = abs((alpha_gap_val - ALPHA_GAP_EV_REF) / ALPHA_GAP_EV_REF) * 100
+                        errors.append(f"α_gap: {err:.2f}%")
+                    if not beta_gap_ok:
+                        err = abs((beta_gap_val - BETA_GAP_EV_REF) / BETA_GAP_EV_REF) * 100
+                        errors.append(f"β_gap: {err:.2f}%")
+                    if not alpha_hl_ok:
+                        err = abs((alpha_hl - ALPHA_HOMO_LUMO_REF) / ALPHA_HOMO_LUMO_REF) * 100
+                        errors.append(f"α_hl: {err:.2f}%")
+                    if not beta_hl_ok:
+                        err = abs((beta_hl - BETA_HOMO_LUMO_REF) / BETA_HOMO_LUMO_REF) * 100
+                        errors.append(f"β_hl: {err:.2f}%")
+                    feedback_parts.append(f"❌ Task 2 (HOMO-LUMO): Outside acceptable range. Errors: {', '.join(errors)}")
 
                 score += task2_score
             except Exception as e:
@@ -147,32 +159,76 @@ class CodeEvaluator:
                 beta_idx = int(beta_index)
                 fid = float(fidelity)
 
-                # Check indices
+                # Check indices (exact match required)
                 indices_correct = (alpha_idx == ALPHA_INDEX_REF and beta_idx == BETA_INDEX_REF)
 
-                # Check fidelity (allow small numerical errors)
-                fidelity_error = abs(fid - FIDELITY_REF)
-                fidelity_correct = fidelity_error < 0.01
+                # Check fidelity with epsilon range
+                fidelity_correct = check_value_in_range(fid, FIDELITY_REF, EPSILON)
 
                 if indices_correct and fidelity_correct:
                     task3_score = 40
                     feedback_parts.append(f"✅ Task 3 (QSD): Perfect! Correct state matching α[{alpha_idx}]↔β[{beta_idx}], F={fid:.6f}")
-                elif indices_correct or fidelity_correct:
-                    task3_score = 25
-                    feedback_parts.append(f"⚠️ Task 3 (QSD): Partial credit - indices or fidelity correct.")
+                elif indices_correct:
+                    fid_error = abs((fid - FIDELITY_REF) / FIDELITY_REF) * 100
+                    feedback_parts.append(f"⚠️ Task 3 (QSD): Indices correct but fidelity outside range (error: {fid_error:.2f}%)")
+                elif fidelity_correct:
+                    feedback_parts.append(f"⚠️ Task 3 (QSD): Fidelity correct but wrong indices. Expected α[{ALPHA_INDEX_REF}]↔β[{BETA_INDEX_REF}], got α[{alpha_idx}]↔β[{beta_idx}]")
                 else:
-                    task3_score = 10
-                    feedback_parts.append(f"⚠️ Task 3 (QSD): Incorrect matching. Got α[{alpha_idx}]↔β[{beta_idx}], F={fid:.6f}")
+                    feedback_parts.append(f"❌ Task 3 (QSD): Incorrect. Got α[{alpha_idx}]↔β[{beta_idx}], F={fid:.6f}")
 
                 score += task3_score
             except Exception as e:
                 feedback_parts.append(f"❌ Task 3 (QSD): Error processing - {str(e)}")
 
+            # TASK 4: Final Energy Beta (15 points)
+            task4_score = 0
+            try:
+                energy_beta = float(final_energy_beta)
+
+                # Calculate bounds with epsilon margin
+                lower_bound = FINAL_ENERGY_BETA_REF * (1 - EPSILON)
+                upper_bound = FINAL_ENERGY_BETA_REF * (1 + EPSILON)
+
+                if lower_bound <= energy_beta <= upper_bound:
+                    task4_score = 15
+                    feedback_parts.append(f"✅ Task 4 (Final Energy Beta): Perfect! Value={energy_beta:.10f}")
+                else:
+                    error_percent = abs((energy_beta - FINAL_ENERGY_BETA_REF) / FINAL_ENERGY_BETA_REF) * 100
+                    feedback_parts.append(f"❌ Task 4 (Final Energy Beta): Outside acceptable range. Value={energy_beta:.10f} (error: {error_percent:.2f}%)")
+
+                score += task4_score
+            except Exception as e:
+                feedback_parts.append(f"❌ Task 4 (Final Energy Beta): Error processing - {str(e)}")
+
+            # TASK 5: Final Energy Perturbed (15 points)
+            task5_score = 0
+            try:
+                energy_perturbed = float(final_energy_perturbed)
+
+                # Calculate bounds with epsilon margin (handle negative values correctly)
+                if FINAL_ENERGY_PERTURBED_REF < 0:
+                    lower_bound = FINAL_ENERGY_PERTURBED_REF * (1 + EPSILON)
+                    upper_bound = FINAL_ENERGY_PERTURBED_REF * (1 - EPSILON)
+                else:
+                    lower_bound = FINAL_ENERGY_PERTURBED_REF * (1 - EPSILON)
+                    upper_bound = FINAL_ENERGY_PERTURBED_REF * (1 + EPSILON)
+
+                if lower_bound <= energy_perturbed <= upper_bound:
+                    task5_score = 15
+                    feedback_parts.append(f"✅ Task 5 (Final Energy Perturbed): Perfect! Value={energy_perturbed:.10f}")
+                else:
+                    error_percent = abs((energy_perturbed - FINAL_ENERGY_PERTURBED_REF) / FINAL_ENERGY_PERTURBED_REF) * 100
+                    feedback_parts.append(f"❌ Task 5 (Final Energy Perturbed): Outside acceptable range. Value={energy_perturbed:.10f} (error: {error_percent:.2f}%)")
+
+                score += task5_score
+            except Exception as e:
+                feedback_parts.append(f"❌ Task 5 (Final Energy Perturbed): Error processing - {str(e)}")
+
             # Final feedback
             feedback = "\n".join(feedback_parts)
             passed = score >= 70
 
-            feedback += f"\n\n📊 Total Score: {score}/100 (Task1: {task1_score}/30, Task2: {task2_score}/30, Task3: {task3_score}/40)"
+            feedback += f"\n\n📊 Total Score: {score}/100 (Task1: {task1_score}/30, Task2: {task2_score}/30, Task3: {task3_score}/40, Task4: {task4_score}/15, Task5: {task5_score}/15)"
 
             if passed:
                 feedback += f"\n🎉 CONGRATULATIONS! You passed the challenge!"
