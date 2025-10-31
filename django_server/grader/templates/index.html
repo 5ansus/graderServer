@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>🎃 Halloween Qiskit Challenge API</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			background: linear-gradient(135deg, #1a1a1a 0%, #2d1b3d 100%);
+			color: #fff;
+			min-height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 20px;
+		}
+
+		.container {
+			max-width: 800px;
+			background: rgba(255, 255, 255, 0.05);
+			backdrop-filter: blur(10px);
+			border-radius: 20px;
+			padding: 40px;
+			box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+			border: 1px solid rgba(255, 255, 255, 0.1);
+		}
+
+		h1 {
+			font-size: 2.5rem;
+			margin-bottom: 10px;
+			background: linear-gradient(45deg, #ff6b35, #f7931e);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
+		}
+
+		.subtitle {
+			color: #aaa;
+			margin-bottom: 30px;
+			font-size: 1.1rem;
+		}
+
+		.status {
+			display: inline-block;
+			padding: 8px 16px;
+			background: #22c55e;
+			color: white;
+			border-radius: 20px;
+			font-weight: bold;
+			margin-bottom: 30px;
+			animation: pulse 2s infinite;
+		}
+
+		@keyframes pulse {
+
+			0%,
+			100% {
+				opacity: 1;
+			}
+
+			50% {
+				opacity: 0.7;
+			}
+		}
+
+		.section {
+			margin: 30px 0;
+		}
+
+		.section h2 {
+			color: #ff6b35;
+			margin-bottom: 15px;
+			font-size: 1.3rem;
+		}
+
+		.endpoint-list {
+			list-style: none;
+		}
+
+		.endpoint-list li {
+			background: rgba(255, 255, 255, 0.05);
+			padding: 12px 16px;
+			margin: 8px 0;
+			border-radius: 8px;
+			border-left: 3px solid #ff6b35;
+			font-family: 'Courier New', monospace;
+			transition: all 0.3s;
+		}
+
+		.endpoint-list li:hover {
+			background: rgba(255, 255, 255, 0.1);
+			transform: translateX(5px);
+		}
+
+		.endpoint-list a {
+			color: #fff;
+			text-decoration: none;
+		}
+
+		.endpoint-list a:hover {
+			color: #ff6b35;
+		}
+
+		.stats {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+			gap: 15px;
+			margin: 20px 0;
+		}
+
+		.stat-card {
+			background: rgba(255, 107, 53, 0.1);
+			padding: 20px;
+			border-radius: 10px;
+			border: 1px solid rgba(255, 107, 53, 0.3);
+			text-align: center;
+		}
+
+		.stat-card .number {
+			font-size: 2rem;
+			font-weight: bold;
+			color: #ff6b35;
+		}
+
+		.stat-card .label {
+			color: #aaa;
+			margin-top: 5px;
+		}
+
+		.button {
+			display: inline-block;
+			padding: 12px 24px;
+			background: #ff6b35;
+			color: white;
+			text-decoration: none;
+			border-radius: 8px;
+			font-weight: bold;
+			transition: all 0.3s;
+			margin: 10px 10px 10px 0;
+		}
+
+		.button:hover {
+			background: #f7931e;
+			transform: translateY(-2px);
+			box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+		}
+
+		.button.secondary {
+			background: rgba(255, 255, 255, 0.1);
+		}
+
+		.button.secondary:hover {
+			background: rgba(255, 255, 255, 0.2);
+		}
+
+		code {
+			background: rgba(0, 0, 0, 0.3);
+			padding: 2px 6px;
+			border-radius: 4px;
+			font-family: 'Courier New', monospace;
+			color: #ff6b35;
+		}
+
+		.footer {
+			margin-top: 40px;
+			text-align: center;
+			color: #666;
+			font-size: 0.9rem;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<h1>🎃 Halloween Qiskit Challenge</h1>
+		<p class="subtitle">API REST para desafíos de programación cuántica</p>
+		<span class="status">🟢 ONLINE</span>
+
+		<div class="section">
+			<h2>📊 Estadísticas</h2>
+			<div class="stats">
+				<div class="stat-card">
+					<div class="number" id="users">{{ stats.total_users }}</div>
+					<div class="label">Usuarios</div>
+				</div>
+				<div class="stat-card">
+					<div class="number" id="challenges">{{ stats.total_challenges }}</div>
+					<div class="label">Challenges</div>
+				</div>
+				<div class="stat-card">
+					<div class="number" id="submissions">{{ stats.total_submissions }}</div>
+					<div class="label">Submissions</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="section">
+			<h2>🔗 Enlaces Rápidos</h2>
+			<a href="/api/" class="button">API Endpoints</a>
+			<a href="/admin/" class="button secondary">Panel Admin</a>
+			<a href="/api/health" class="button secondary">Health Check</a>
+		</div>
+
+		<div class="section">
+			<h2>📡 Endpoints Principales</h2>
+			<ul class="endpoint-list">
+				<li><a href="/api/">GET /api/</a> - Información de la API</li>
+				<li>POST /api/register - Registrar usuario</li>
+				<li>POST /api/login - Iniciar sesión</li>
+				<li>GET /api/challenges - Listar challenges</li>
+				<li>POST /api/submit - Enviar solución</li>
+				<li>GET /api/leaderboard - Ver ranking</li>
+			</ul>
+		</div>
+
+		<div class="section">
+			<h2>💻 Cliente Python</h2>
+			<p style="margin-bottom: 15px;">Usa el cliente oficial para interactuar con la API:</p>
+			<pre style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; overflow-x: auto;"><code>from grader_qiskit_client import *
+
+# Registrar usuario
+register('username', 'email@example.com', 'password')
+
+# Ver challenges
+show_challenges()
+
+# Enviar solución
+submit(1, "tu código aquí")
+
+# Ver leaderboard
+show_leaderboard()</code></pre>
+		</div>
+
+		<div class="section">
+			<h2>📚 Documentación</h2>
+			<p>Más información en: <a href="https://github.com/5ansus/graderServer" style="color: #ff6b35;">GitHub
+					Repository</a></p>
+		</div>
+
+		<div class="footer">
+			<p>🎃 Halloween Qiskit Challenge API v1.0</p>
+			<p>Made with 💜 for MadQFF'25</p>
+		</div>
+	</div>
+</body>
+
+</html>

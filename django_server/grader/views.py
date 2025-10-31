@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.db.models import Max, Count, Q
+from django.shortcuts import render
 from .models import Challenge, Submission, UserProfile
 from .serializers import (
     UserSerializer, RegisterSerializer, LoginSerializer,
@@ -14,6 +15,66 @@ from .serializers import (
 from .evaluators import CodeEvaluator
 
 
+# ==================== INDEX / HOME ====================
+
+class IndexView(views.APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        """Vista principal de la API"""
+        total_users = User.objects.count()
+        total_challenges = Challenge.objects.filter(is_active=True).count()
+        total_submissions = Submission.objects.count()
+
+        # Si se solicita HTML (navegador), renderizar template
+        if 'text/html' in request.headers.get('Accept', ''):
+            context = {
+                'stats': {
+                    'total_users': total_users,
+                    'total_challenges': total_challenges,
+                    'total_submissions': total_submissions,
+                }
+            }
+            return render(request, 'index.html', context)
+
+        # Si se solicita JSON (API), devolver JSON
+        data = {
+            'message': '🎃 Halloween Qiskit Challenge API',
+            'version': '1.0',
+            'status': 'online',
+            'endpoints': {
+                'authentication': {
+                    'register': '/api/register',
+                    'login': '/api/login',
+                    'profile': '/api/profile (requires authentication)',
+                },
+                'challenges': {
+                    'list': '/api/challenges (requires authentication)',
+                    'detail': '/api/challenges/<id> (requires authentication)',
+                },
+                'submissions': {
+                    'submit': '/api/submit (requires authentication)',
+                    'list': '/api/submissions (requires authentication)',
+                    'detail': '/api/submissions/<id> (requires authentication)',
+                },
+                'leaderboard': {
+                    'leaderboard': '/api/leaderboard (requires authentication)',
+                    'progress': '/api/progress (requires authentication)',
+                    'stats': '/api/stats (requires authentication)',
+                },
+                'health': '/api/health',
+                'admin': '/admin/',
+            },
+            'stats': {
+                'total_users': total_users,
+                'total_challenges': total_challenges,
+                'total_submissions': total_submissions,
+            },
+            'documentation': 'https://github.com/5ansus/graderServer',
+            'client': 'Use grader_qiskit_client.py to interact with this API',
+        }
+
+        return Response(data)
 # ==================== AUTENTICACIÓN ====================
 
 class RegisterView(views.APIView):
