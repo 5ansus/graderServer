@@ -1,0 +1,37 @@
+# ============================================
+# CÓDIGO PARA EL ARCHIVO WSGI DE PYTHONANYWHERE
+# ============================================
+#
+# INSTRUCCIONES:
+# 1. En PythonAnywhere, ve a la pestaña "Web"
+# 2. En la sección "Code", haz click en el enlace del archivo WSGI
+#    (algo como: /var/www/TU_USUARIO_pythonanywhere_com_wsgi.py)
+# 3. BORRA TODO el contenido del archivo
+# 4. COPIA Y PEGA el código de abajo
+# 5. REEMPLAZA 'YOUR_USERNAME' con tu nombre de usuario de PythonAnywhere
+# 6. Haz click en "Save"
+# 7. Ve a la pestaña "Web" y haz click en "Reload"
+#
+# ============================================
+
+# +++++++++++ DJANGO +++++++++++
+import os
+import sys
+
+# Añade el path de tu proyecto Django
+# IMPORTANTE: Reemplaza 'YOUR_USERNAME' con tu nombre de usuario de PythonAnywhere
+# Ejemplo: si tu usuario es 'UAMCPrA', pon: '/home/UAMCPrA/HaloweenServer/django_server'
+path = '/home/YOUR_USERNAME/HaloweenServer/django_server'
+if path not in sys.path:
+    sys.path.insert(0, path)
+
+# Configura el módulo de settings de Django
+os.environ['DJANGO_SETTINGS_MODULE'] = 'halloween_server.settings'
+
+# Importa la aplicación WSGI de Django
+from django.core.wsgi import get_wsgi_application
+application = get_wsgi_application()
+
+# ============================================
+# FIN DEL CÓDIGO
+# ============================================
