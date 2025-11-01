@@ -4,7 +4,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
-from django.db.models import Max, Count, Q
+from django.db.models import Max, Count, Q, Sum
 from django.shortcuts import render
 from .models import Challenge, Submission, UserProfile
 from .serializers import (
@@ -454,11 +454,19 @@ class LeaderboardView(views.APIView):
 
         # Si se solicita HTML (navegador), renderizar template
         if 'text/html' in request.headers.get('Accept', ''):
+            # Compute some page-level stats
+            total_participants = Leaderboard.objects.count()
+            total_challenges = Challenge.objects.filter(is_active=True).count()
+            agg = Challenge.objects.filter(is_active=True).aggregate(total=Sum('max_score'))
+            max_points = agg.get('total') or 0
+
             context = {
                 'leaderboard': leaderboard_data,
                 'user_position': user_position,
-                'total_users': Leaderboard.objects.count(),
+                'total_users': total_participants,
                 'challenge_roots': challenge_roots,
+                'total_challenges': total_challenges,
+                'max_points': max_points,
             }
             return render(request, 'leaderboard.html', context)
 

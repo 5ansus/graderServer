@@ -11,7 +11,7 @@ print("="*70)
 
 # Login
 print("\n[1] Logging in...")
-login("new_test36")
+login("new_test361")
 
 print("\n" + "="*70)
 print("SUBMITTING TASKS INDIVIDUALLY")
