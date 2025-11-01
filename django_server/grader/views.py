@@ -54,11 +54,12 @@ class IndexView(views.APIView):
                 },
                 'submissions': {
                     'submit': '/api/submit (requires authentication)',
+                    'submit-results': '/api/submit-results (requires authentication)',
                     'list': '/api/submissions (requires authentication)',
                     'detail': '/api/submissions/<id> (requires authentication)',
                 },
                 'leaderboard': {
-                    'leaderboard': '/api/leaderboard (requires authentication)',
+                    'leaderboard': '/api/leaderboard (PUBLIC - no authentication required)',
                     'progress': '/api/progress (requires authentication)',
                     'stats': '/api/stats (requires authentication)',
                 },
@@ -72,6 +73,7 @@ class IndexView(views.APIView):
             },
             'documentation': 'https://github.com/5ansus/graderServer',
             'client': 'Use grader_qiskit_client.py to interact with this API',
+            'leaderboard_url': '/api/leaderboard',
         }
 
         return Response(data)
@@ -375,6 +377,16 @@ class LeaderboardView(views.APIView):
             except Leaderboard.DoesNotExist:
                 user_position = None
 
+        # Si se solicita HTML (navegador), renderizar template
+        if 'text/html' in request.headers.get('Accept', ''):
+            context = {
+                'leaderboard': leaderboard_data,
+                'user_position': user_position,
+                'total_users': Leaderboard.objects.count()
+            }
+            return render(request, 'leaderboard.html', context)
+
+        # Si se solicita JSON (API), retornar JSON
         return Response({
             'leaderboard': leaderboard_data,
             'user_position': user_position,

@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>🏆 Leaderboard - Halloween Qiskit Challenge</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			background: linear-gradient(135deg, #1a1a1a 0%, #2d1b3d 100%);
+			color: #fff;
+			min-height: 100vh;
+			padding: 20px;
+		}
+
+		.container {
+			max-width: 1200px;
+			margin: 0 auto;
+		}
+
+		.header {
+			text-align: center;
+			padding: 40px 20px;
+			background: rgba(255, 255, 255, 0.05);
+			backdrop-filter: blur(10px);
+			border-radius: 20px;
+			margin-bottom: 30px;
+			box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+			border: 1px solid rgba(255, 255, 255, 0.1);
+		}
+
+		h1 {
+			font-size: 3rem;
+			margin-bottom: 10px;
+			background: linear-gradient(45deg, #FFD700, #FFA500);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
+			text-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+		}
+
+		.subtitle {
+			color: #aaa;
+			font-size: 1.2rem;
+			margin-bottom: 20px;
+		}
+
+		.stats-bar {
+			display: flex;
+			justify-content: center;
+			gap: 30px;
+			flex-wrap: wrap;
+			margin-top: 20px;
+		}
+
+		.stat {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		.stat-number {
+			font-size: 2rem;
+			font-weight: bold;
+			color: #FFD700;
+		}
+
+		.stat-label {
+			color: #999;
+			font-size: 0.9rem;
+			margin-top: 5px;
+		}
+
+		.leaderboard-container {
+			background: rgba(255, 255, 255, 0.05);
+			backdrop-filter: blur(10px);
+			border-radius: 20px;
+			padding: 30px;
+			box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+			border: 1px solid rgba(255, 255, 255, 0.1);
+		}
+
+		.leaderboard-table {
+			width: 100%;
+			border-collapse: separate;
+			border-spacing: 0 10px;
+		}
+
+		.leaderboard-table thead tr {
+			background: rgba(255, 215, 0, 0.1);
+			border: 1px solid rgba(255, 215, 0, 0.3);
+		}
+
+		.leaderboard-table th {
+			padding: 15px;
+			text-align: left;
+			color: #FFD700;
+			font-weight: 600;
+			text-transform: uppercase;
+			font-size: 0.85rem;
+			letter-spacing: 1px;
+		}
+
+		.leaderboard-table th:first-child {
+			border-radius: 10px 0 0 10px;
+			text-align: center;
+			width: 80px;
+		}
+
+		.leaderboard-table th:last-child {
+			border-radius: 0 10px 10px 0;
+			text-align: center;
+		}
+
+		.leaderboard-row {
+			background: rgba(255, 255, 255, 0.03);
+			transition: all 0.3s ease;
+			border-radius: 10px;
+		}
+
+		.leaderboard-row:hover {
+			background: rgba(255, 255, 255, 0.08);
+			transform: translateX(5px);
+			box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+		}
+
+		.leaderboard-row.top-1 {
+			background: linear-gradient(90deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 255, 255, 0.05) 100%);
+			border: 1px solid rgba(255, 215, 0, 0.5);
+		}
+
+		.leaderboard-row.top-2 {
+			background: linear-gradient(90deg, rgba(192, 192, 192, 0.2) 0%, rgba(255, 255, 255, 0.05) 100%);
+			border: 1px solid rgba(192, 192, 192, 0.5);
+		}
+
+		.leaderboard-row.top-3 {
+			background: linear-gradient(90deg, rgba(205, 127, 50, 0.2) 0%, rgba(255, 255, 255, 0.05) 100%);
+			border: 1px solid rgba(205, 127, 50, 0.5);
+		}
+
+		.leaderboard-row td {
+			padding: 20px 15px;
+		}
+
+		.leaderboard-row td:first-child {
+			border-radius: 10px 0 0 10px;
+		}
+
+		.leaderboard-row td:last-child {
+			border-radius: 0 10px 10px 0;
+		}
+
+		.rank-cell {
+			text-align: center;
+			font-size: 1.5rem;
+			font-weight: bold;
+		}
+
+		.rank-badge {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 50px;
+			height: 50px;
+			border-radius: 50%;
+			font-size: 1.2rem;
+		}
+
+		.rank-badge.gold {
+			background: linear-gradient(135deg, #FFD700, #FFA500);
+			box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+		}
+
+		.rank-badge.silver {
+			background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
+			box-shadow: 0 4px 15px rgba(192, 192, 192, 0.4);
+		}
+
+		.rank-badge.bronze {
+			background: linear-gradient(135deg, #CD7F32, #B87333);
+			box-shadow: 0 4px 15px rgba(205, 127, 50, 0.4);
+		}
+
+		.username-cell {
+			font-size: 1.1rem;
+			font-weight: 600;
+		}
+
+		.username-icon {
+			display: inline-block;
+			margin-right: 10px;
+		}
+
+		.score-cell {
+			text-align: center;
+			font-size: 1.3rem;
+			font-weight: bold;
+			color: #FFD700;
+		}
+
+		.tasks-cell {
+			text-align: center;
+		}
+
+		.tasks-progress {
+			display: flex;
+			gap: 3px;
+			justify-content: center;
+			margin-top: 5px;
+		}
+
+		.task-dot {
+			width: 12px;
+			height: 12px;
+			border-radius: 50%;
+			background: rgba(255, 255, 255, 0.2);
+		}
+
+		.task-dot.completed {
+			background: #22c55e;
+			box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+		}
+
+		.date-cell {
+			text-align: center;
+			color: #999;
+			font-size: 0.9rem;
+		}
+
+		.nav-buttons {
+			margin-top: 30px;
+			text-align: center;
+		}
+
+		.button {
+			display: inline-block;
+			padding: 12px 24px;
+			background: rgba(255, 215, 0, 0.2);
+			color: #FFD700;
+			text-decoration: none;
+			border-radius: 8px;
+			font-weight: bold;
+			transition: all 0.3s;
+			margin: 5px;
+			border: 1px solid rgba(255, 215, 0, 0.3);
+		}
+
+		.button:hover {
+			background: rgba(255, 215, 0, 0.3);
+			transform: translateY(-2px);
+			box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+		}
+
+		.button.primary {
+			background: #FFD700;
+			color: #1a1a1a;
+			border: none;
+		}
+
+		.button.primary:hover {
+			background: #FFA500;
+		}
+
+		.empty-state {
+			text-align: center;
+			padding: 60px 20px;
+			color: #666;
+		}
+
+		.empty-state-icon {
+			font-size: 4rem;
+			margin-bottom: 20px;
+		}
+
+		.loading {
+			text-align: center;
+			padding: 40px;
+		}
+
+		.spinner {
+			border: 4px solid rgba(255, 255, 255, 0.1);
+			border-top: 4px solid #FFD700;
+			border-radius: 50%;
+			width: 50px;
+			height: 50px;
+			animation: spin 1s linear infinite;
+			margin: 0 auto;
+		}
+
+		@keyframes spin {
+			0% {
+				transform: rotate(0deg);
+			}
+
+			100% {
+				transform: rotate(360deg);
+			}
+		}
+
+		.footer {
+			text-align: center;
+			margin-top: 40px;
+			padding: 20px;
+			color: #666;
+			font-size: 0.9rem;
+		}
+
+		/* Responsive */
+		@media (max-width: 768px) {
+			h1 {
+				font-size: 2rem;
+			}
+
+			.leaderboard-table th,
+			.leaderboard-table td {
+				padding: 10px 8px;
+				font-size: 0.9rem;
+			}
+
+			.rank-badge {
+				width: 40px;
+				height: 40px;
+				font-size: 1rem;
+			}
+
+			.stats-bar {
+				gap: 15px;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<div class="header">
+			<h1>🏆 Leaderboard</h1>
+			<p class="subtitle">Halloween Qiskit Challenge - MadQFF'25</p>
+			<div class="stats-bar">
+				<div class="stat">
+					<div class="stat-number" id="total-users">{{ total_users }}</div>
+					<div class="stat-label">Participants</div>
+				</div>
+				<div class="stat">
+					<div class="stat-number">5</div>
+					<div class="stat-label">Total Tasks</div>
+				</div>
+				<div class="stat">
+					<div class="stat-number">100</div>
+					<div class="stat-label">Max Points</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="leaderboard-container">
+			{% if leaderboard %}
+			<table class="leaderboard-table">
+				<thead>
+					<tr>
+						<th>Rank</th>
+						<th>Participant</th>
+						<th>Score</th>
+						<th>Tasks Completed</th>
+						<th>Last Update</th>
+					</tr>
+				</thead>
+				<tbody id="leaderboard-body">
+					{% for entry in leaderboard %}
+					<tr
+						class="leaderboard-row {% if entry.rank == 1 %}top-1{% elif entry.rank == 2 %}top-2{% elif entry.rank == 3 %}top-3{% endif %}">
+						<td class="rank-cell">
+							{% if entry.rank == 1 %}
+							<span class="rank-badge gold">🥇</span>
+							{% elif entry.rank == 2 %}
+							<span class="rank-badge silver">🥈</span>
+							{% elif entry.rank == 3 %}
+							<span class="rank-badge bronze">🥉</span>
+							{% else %}
+							<span style="color: #999;">#{{ entry.rank }}</span>
+							{% endif %}
+						</td>
+						<td class="username-cell">
+							<span class="username-icon">👤</span>
+							{{ entry.username }}
+						</td>
+						<td class="score-cell">
+							{{ entry.total_score }} pts
+						</td>
+						<td class="tasks-cell">
+							<div>{{ entry.challenges_completed }}/5</div>
+							<div class="tasks-progress">
+								{% for i in "12345" %}
+								<span
+									class="task-dot {% if forloop.counter <= entry.challenges_completed %}completed{% endif %}"></span>
+								{% endfor %}
+							</div>
+						</td>
+						<td class="date-cell">
+							{{ entry.last_updated|date:"M d, Y" }}<br>
+							<small>{{ entry.last_updated|time:"H:i" }}</small>
+						</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+			{% else %}
+			<div class="empty-state">
+				<div class="empty-state-icon">🎃</div>
+				<h2>No participants yet!</h2>
+				<p>Be the first to complete a challenge!</p>
+			</div>
+			{% endif %}
+		</div>
+
+		<div class="nav-buttons">
+			<a href="/" class="button">🏠 Home</a>
+			<a href="/api/" class="button">📡 API</a>
+			<a href="/api/leaderboard?format=json" class="button">📊 JSON Data</a>
+			<a href="javascript:location.reload()" class="button primary">🔄 Refresh</a>
+		</div>
+
+		<div class="footer">
+			<p>🎃 Updates in real-time as users complete tasks</p>
+			<p>Each task is worth 20 points • Total: 100 points</p>
+			<p style="margin-top: 10px; color: #444;">Made with 💜 for MadQFF'25</p>
+		</div>
+	</div>
+
+	<script>
+		// Auto-refresh every 30 seconds
+		setTimeout(() => {
+			location.reload();
+		}, 30000);
+
+		// Add animation on load
+		document.addEventListener('DOMContentLoaded', () => {
+			const rows = document.querySelectorAll('.leaderboard-row');
+			rows.forEach((row, index) => {
+				row.style.opacity = '0';
+				row.style.transform = 'translateY(20px)';
+				setTimeout(() => {
+					row.style.transition = 'all 0.5s ease';
+					row.style.opacity = '1';
+					row.style.transform = 'translateY(0)';
+				}, index * 50);
+			});
+		});
+	</script>
+</body>
+
+</html>

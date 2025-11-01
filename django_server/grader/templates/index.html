@@ -153,6 +153,19 @@
 			box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
 		}
 
+		.button.primary {
+			background: linear-gradient(45deg, #FFD700, #FFA500);
+			color: #1a1a1a;
+			font-size: 1.1rem;
+			padding: 15px 30px;
+			box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+		}
+
+		.button.primary:hover {
+			transform: translateY(-3px) scale(1.05);
+			box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+		}
+
 		.button.secondary {
 			background: rgba(255, 255, 255, 0.1);
 		}
@@ -204,6 +217,7 @@
 
 		<div class="section">
 			<h2>🔗 Quick Links</h2>
+			<a href="/api/leaderboard" class="button primary">🏆 View Leaderboard</a>
 			<a href="/api/" class="button">API Endpoints</a>
 			<a href="/admin/" class="button secondary">Admin Panel</a>
 			<a href="/api/health" class="button secondary">Health Check</a>
@@ -213,12 +227,13 @@
 			<h2>📡 Main Endpoints</h2>
 			<ul class="endpoint-list">
 				<li><a href="/api/">GET /api/</a> - API Information</li>
+				<li><a href="/api/leaderboard"><strong>GET /api/leaderboard</strong></a> - 🏆 View Leaderboard (Public)
+				</li>
 				<li>POST /api/register - Register user</li>
 				<li>POST /api/login - Login (auto-creates user)</li>
 				<li>GET /api/challenges - List challenges</li>
 				<li>POST /api/submit-results - Submit results (recommended)</li>
 				<li>POST /api/submit - Submit code (legacy)</li>
-				<li>GET /api/leaderboard - View leaderboard</li>
 			</ul>
 		</div>
 
