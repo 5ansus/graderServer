@@ -446,9 +446,17 @@ class DownloadClientView(views.APIView):
         from django.http import FileResponse, HttpResponse
         import os
         from pathlib import Path
+        from django.conf import settings
 
-        # Buscar el archivo del cliente
-        base_dir = Path(__file__).resolve().parent.parent.parent.parent
+        # Buscar el archivo del cliente a nivel de manage.py (BASE_DIR)
+        # Si BASE_DIR no está definido, calcularlo desde este archivo
+        if hasattr(settings, 'BASE_DIR'):
+            base_dir = settings.BASE_DIR
+        else:
+            # views.py está en django_server/grader/views.py
+            # manage.py está en django_server/
+            base_dir = Path(__file__).resolve().parent.parent
+        
         client_file = base_dir / 'grader_qiskit_client.py'
 
         if client_file.exists():
@@ -459,8 +467,17 @@ class DownloadClientView(views.APIView):
             response['Content-Disposition'] = 'attachment; filename="grader_qiskit_client.py"'
             return response
         else:
+            # Mostrar información de debug
+            import os
+            files_in_dir = os.listdir(base_dir) if os.path.exists(base_dir) else []
+            
             return HttpResponse(
-                'Client file not found. Please contact administrators.',
+                f'<h3>Client file not found</h3>'
+                f'<p><strong>Looking for:</strong> {client_file}</p>'
+                f'<p><strong>Base directory:</strong> {base_dir}</p>'
+                f'<p><strong>Files in directory:</strong></p>'
+                f'<ul>{"".join([f"<li>{f}</li>" for f in files_in_dir])}</ul>'
+                f'<p>Please make sure "grader_qiskit_client.py" is in the same directory as manage.py</p>',
                 status=404
             )
 
