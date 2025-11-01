@@ -277,6 +277,24 @@ class SubmitResultsView(views.APIView):
             execution_time=execution_time
         )
 
+        # Actualizar leaderboard si la task fue aceptada
+        if passed:
+            from .models import Leaderboard
+            leaderboard, created = Leaderboard.objects.get_or_create(user=request.user)
+
+            # Verificar si es la primera vez que completa este challenge
+            previous_passed = Submission.objects.filter(
+                user=request.user,
+                challenge=challenge,
+                passed=True
+            ).exclude(id=submission.id).exists()
+
+            # Si es la primera vez que pasa este challenge, sumar puntos y contar el challenge
+            if not previous_passed:
+                leaderboard.total_score += challenge.max_score  # Siempre 20 puntos por task
+                leaderboard.challenges_completed += 1
+                leaderboard.save()
+
         return Response({
             'submission_id': submission.id,
             'score': score,
@@ -322,34 +340,45 @@ class SubmissionDetailView(generics.RetrieveAPIView):
 # ==================== LEADERBOARD Y ESTADÍSTICAS ====================
 
 class LeaderboardView(views.APIView):
-    permission_classes = [IsAuthenticated]
+    """
+    Vista pública del leaderboard - NO requiere autenticación.
+    Muestra el ranking de todos los usuarios ordenados por puntuación.
+    """
+    permission_classes = [AllowAny]
 
     def get(self, request):
+        from .models import Leaderboard
+
         limit = int(request.query_params.get('limit', 50))
 
-        # Obtener usuarios ordenados por score
-        profiles = UserProfile.objects.select_related('user').order_by('-total_score')
+        # Obtener leaderboard ordenado
+        leaderboard_entries = Leaderboard.objects.select_related('user').order_by(
+            '-total_score', '-challenges_completed', 'last_updated'
+        )[:limit]
 
         leaderboard_data = []
+        for idx, entry in enumerate(leaderboard_entries, start=1):
+            leaderboard_data.append({
+                'rank': idx,
+                'username': entry.user.username,
+                'total_score': entry.total_score,
+                'challenges_completed': entry.challenges_completed,
+                'last_updated': entry.last_updated
+            })
+
+        # Si el usuario está autenticado, buscar su posición
         user_position = None
-
-        for idx, profile in enumerate(profiles, start=1):
-            data = {
-                'username': profile.user.username,
-                'total_score': profile.total_score,
-                'challenges_completed': profile.get_challenges_completed(),
-                'rank': idx
-            }
-
-            if idx <= limit:
-                leaderboard_data.append(data)
-
-            if profile.user == request.user:
-                user_position = idx
+        if request.user.is_authenticated:
+            try:
+                user_entry = Leaderboard.objects.get(user=request.user)
+                user_position = user_entry.get_rank()
+            except Leaderboard.DoesNotExist:
+                user_position = None
 
         return Response({
             'leaderboard': leaderboard_data,
-            'user_position': user_position
+            'user_position': user_position,
+            'total_users': Leaderboard.objects.count()
         })
 
 
@@ -357,17 +386,20 @@ class ProgressView(views.APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        from .models import Leaderboard
+
         user = request.user
-        profile = user.profile
+
+        # Obtener o crear entrada de leaderboard
+        leaderboard, created = Leaderboard.objects.get_or_create(user=user)
 
         total_challenges = Challenge.objects.filter(is_active=True).count()
-        challenges_completed = profile.get_challenges_completed()
         total_submissions = Submission.objects.filter(user=user).count()
-        rank = profile.get_rank()
+        rank = leaderboard.get_rank()
 
         return Response({
-            'total_score': profile.total_score,
-            'challenges_completed': challenges_completed,
+            'total_score': leaderboard.total_score,
+            'challenges_completed': leaderboard.challenges_completed,
             'total_challenges': total_challenges,
             'total_submissions': total_submissions,
             'rank': rank

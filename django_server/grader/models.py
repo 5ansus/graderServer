@@ -152,3 +152,36 @@ def create_user_profile(sender, instance, created, **kwargs):
 def save_user_profile(sender, instance, **kwargs):
     if hasattr(instance, 'profile'):
         instance.profile.save()
+
+
+class Leaderboard(models.Model):
+    """
+    Modelo para el leaderboard/ranking de usuarios.
+    Inspirado en old_requirements.py - guarda puntuación agregada.
+    """
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='leaderboard', primary_key=True)
+    total_score = models.IntegerField(default=0)
+    challenges_completed = models.IntegerField(default=0)  # Número de challenges pasados
+    last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-total_score', '-challenges_completed', 'last_updated']
+        verbose_name = 'Leaderboard Entry'
+        verbose_name_plural = 'Leaderboard'
+
+    def __str__(self):
+        return f"{self.user.username}: {self.total_score} points, {self.challenges_completed} completed"
+
+    def get_rank(self):
+        """Obtiene la posición del usuario en el ranking"""
+        higher_scores = Leaderboard.objects.filter(
+            total_score__gt=self.total_score
+        ).count()
+        return higher_scores + 1
+
+
+# Signal para crear Leaderboard cuando se crea un User
+@receiver(post_save, sender=User)
+def create_user_leaderboard(sender, instance, created, **kwargs):
+    if created:
+        Leaderboard.objects.get_or_create(user=instance)

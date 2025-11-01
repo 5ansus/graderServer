@@ -13,8 +13,7 @@ def root_view(request):
         'message': '🎃 Halloween Qiskit Challenge API',
         'api': '/api/',
         'admin': '/admin/',
-        'health': '/api/health',
-        'documentation': 'https://github.com/5ansus/graderServer',
+        'health': '/api/health'
     })
 
 urlpatterns = [
