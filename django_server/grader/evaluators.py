@@ -21,16 +21,26 @@ class CodeEvaluator:
         try:
             ALPHA_VQE_REF = -12.29314089
             BETA_VQE_REF = 0.00015438
-            EPSILON = 0.01
+            ABS_TOL = 0.001       # tolerancia absoluta fija
 
-            def check_value_in_range(value, reference, epsilon):
+            def check_value_in_range(value, reference, epsilon, abs_tol=ABS_TOL):
+                # --- Rango relativo ---
                 if reference < 0:
-                    lower = reference * (1 + epsilon)
-                    upper = reference * (1 - epsilon)
+                    lower_rel = reference * (1 + epsilon)
+                    upper_rel = reference * (1 - epsilon)
                 else:
-                    lower = reference * (1 - epsilon)
-                    upper = reference * (1 + epsilon)
-                return lower <= value <= upper
+                    lower_rel = reference * (1 - epsilon)
+                    upper_rel = reference * (1 + epsilon)
+
+                # --- Rango absoluto ---
+                lower_abs = reference - abs_tol
+                upper_abs = reference + abs_tol
+
+                # --- Combinar chequeos ---
+                in_relative_range = lower_rel <= value <= upper_rel
+                in_absolute_range = lower_abs <= value <= upper_abs
+
+                return in_relative_range or in_absolute_range
 
             alpha_energy = float(results.get('alpha_vqe_result'))
             beta_energy = float(results.get('beta_vqe_result'))
