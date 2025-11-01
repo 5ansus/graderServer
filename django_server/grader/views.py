@@ -388,7 +388,7 @@ class LeaderboardView(views.APIView):
         )[:limit]
 
         # Compute challenge roots (e.g., 351 -> 35) from active challenges to build columns
-        active_challenge_ids = Challenge.objects.filter(is_active=True).values_list('id', flat=True)
+        active_challenge_ids = list(Challenge.objects.filter(is_active=True).values_list('id', flat=True))
         challenge_roots_set = set()
         for cid in active_challenge_ids:
             try:
@@ -397,10 +397,18 @@ class LeaderboardView(views.APIView):
                 continue
         challenge_roots = sorted(challenge_roots_set)
 
+        # Build mapping root -> ordered list of task ids for that root (used to render dots)
+        task_ids_per_root = {}
+        for root in challenge_roots:
+            ids = sorted([int(cid) for cid in active_challenge_ids if int(cid) // 10 == root])
+            task_ids_per_root[root] = ids
+
         leaderboard_data = []
         for idx, entry in enumerate(leaderboard_entries, start=1):
             # Gather passed tasks for this user grouped by challenge root (e.g., 351->35)
-            passed_task_ids = Submission.objects.filter(user=entry.user, passed=True).values_list('challenge_id', flat=True).distinct()
+            passed_task_ids_qs = Submission.objects.filter(user=entry.user, passed=True).values_list('challenge_id', flat=True).distinct()
+            passed_task_ids = set(int(x) for x in passed_task_ids_qs)
+
             passed_by_challenge = {}
             for cid in passed_task_ids:
                 try:
@@ -412,6 +420,7 @@ class LeaderboardView(views.APIView):
             # Sort the lists for consistency
             for k in passed_by_challenge:
                 passed_by_challenge[k].sort()
+
             # Create entry dict and also expose per-root lists for template convenience
             entry_dict = {
                 'rank': idx,
@@ -424,9 +433,13 @@ class LeaderboardView(views.APIView):
 
             for root in challenge_roots:
                 entry_dict[f'passed_root_{root}'] = passed_by_challenge.get(root, [])
+                # completed flags aligned with task_ids_per_root[root]
+                flags = [tid in passed_task_ids for tid in task_ids_per_root.get(root, [])]
+                entry_dict[f'completed_flags_{root}'] = flags
 
-            # Also expose an ordered list of (root, tasks) pairs to simplify template rendering
+            # Also expose an ordered list of (root, tasks) and (root, flags) pairs to simplify template rendering
             entry_dict['passed_roots_pairs'] = [(root, passed_by_challenge.get(root, [])) for root in challenge_roots]
+            entry_dict['completed_roots_pairs'] = [(root, entry_dict.get(f'completed_flags_{root}', [])) for root in challenge_roots]
 
             leaderboard_data.append(entry_dict)
 
@@ -438,16 +451,6 @@ class LeaderboardView(views.APIView):
                 user_position = user_entry.get_rank()
             except Leaderboard.DoesNotExist:
                 user_position = None
-
-        # Compute challenge roots (e.g., 351 -> 35) from active challenges to build columns
-        active_challenge_ids = Challenge.objects.filter(is_active=True).values_list('id', flat=True)
-        challenge_roots_set = set()
-        for cid in active_challenge_ids:
-            try:
-                challenge_roots_set.add(int(cid) // 10)
-            except Exception:
-                continue
-        challenge_roots = sorted(challenge_roots_set)
 
         # Si se solicita HTML (navegador), renderizar template
         if 'text/html' in request.headers.get('Accept', ''):

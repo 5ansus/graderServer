@@ -396,10 +396,9 @@
 						<th>Rank</th>
 						<th>Participant</th>
 						<th>Score</th>
-						<th>Tasks Completed</th>
 						{% if challenge_roots %}
 						{% for root in challenge_roots %}
-						<th>Ch {{ root }}</th>
+						<th>Challenge {{ root }}</th>
 						{% endfor %}
 						{% endif %}
 						<th>Last Update</th>
@@ -427,31 +426,20 @@
 						<td class="score-cell">
 							{{ entry.total_score }} pts
 						</td>
-						<td class="tasks-cell">
-							<div>{{ entry.challenges_completed }}/5</div>
-							<div class="tasks-progress">
-								{% for i in "12345" %}
-								<span
-									class="task-dot {% if forloop.counter <= entry.challenges_completed %}completed{% endif %}"></span>
+						{% if challenge_roots %}
+						{% for pair in entry.completed_roots_pairs %}
+						<td style="text-align:center;">
+							{% if pair.1 %}
+							<div class="tasks-progress" title="Challenge {{ pair.0 }}">
+								{% for flag in pair.1 %}
+								<span class="task-dot {% if flag %}completed{% endif %}"></span>
 								{% endfor %}
 							</div>
+							{% else %}
+							<span style="color:#777;">—</span>
+							{% endif %}
 						</td>
-						{% if challenge_roots %}
-							{% for pair in entry.passed_roots_pairs %}
-							<td style="text-align:center;">
-								{% if pair.1 %}
-								<div class="passed-challenges">
-									<div class="passed-challenge">
-										{% for t in pair.1 %}
-										<span class="task-chip">{{ t }}</span>
-										{% endfor %}
-									</div>
-								</div>
-								{% else %}
-								<span style="color:#777;">—</span>
-								{% endif %}
-							</td>
-							{% endfor %}
+						{% endfor %}
 						{% endif %}
 						<td class="date-cell">
 							{{ entry.last_updated|date:"M d, Y" }}<br>
