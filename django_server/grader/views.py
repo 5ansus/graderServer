@@ -434,6 +434,37 @@ class StatsView(views.APIView):
         })
 
 
+# ==================== CLIENT DOWNLOAD ====================
+
+class DownloadClientView(views.APIView):
+    """
+    Vista para descargar el cliente Python directamente desde el servidor
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        from django.http import FileResponse, HttpResponse
+        import os
+        from pathlib import Path
+
+        # Buscar el archivo del cliente
+        base_dir = Path(__file__).resolve().parent.parent.parent.parent
+        client_file = base_dir / 'grader_qiskit_client.py'
+
+        if client_file.exists():
+            response = FileResponse(
+                open(client_file, 'rb'),
+                content_type='text/x-python'
+            )
+            response['Content-Disposition'] = 'attachment; filename="grader_qiskit_client.py"'
+            return response
+        else:
+            return HttpResponse(
+                'Client file not found. Please contact administrators.',
+                status=404
+            )
+
+
 # ==================== HEALTH CHECK ====================
 
 class HealthCheckView(views.APIView):

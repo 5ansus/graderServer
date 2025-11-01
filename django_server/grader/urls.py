@@ -5,6 +5,7 @@ from .views import (
     ChallengeListView, ChallengeDetailView,
     SubmitCodeView, SubmitResultsView, SubmissionListView, SubmissionDetailView,
     LeaderboardView, ProgressView, StatsView,
+    DownloadClientView,
     HealthCheckView
 )
 
@@ -31,6 +32,9 @@ urlpatterns = [
     path('leaderboard', LeaderboardView.as_view(), name='leaderboard'),
     path('progress', ProgressView.as_view(), name='progress'),
     path('stats', StatsView.as_view(), name='stats'),
+
+    # Client download
+    path('download-client', DownloadClientView.as_view(), name='download-client'),
 
     # Health check
     path('health', HealthCheckView.as_view(), name='health'),
