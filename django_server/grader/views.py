@@ -15,9 +15,29 @@ from .serializers import (
 from .evaluators import CodeEvaluator
 
 
-# ==================== INDEX / HOME ====================
+# ==================== HOME / INDEX ====================
 
-class IndexView(views.APIView):
+class HomeView(views.APIView):
+    """Vista principal del sitio (raíz)"""
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        total_users = User.objects.count()
+        total_challenges = Challenge.objects.filter(is_active=True).count()
+        total_submissions = Submission.objects.count()
+
+        context = {
+            'stats': {
+                'total_users': total_users,
+                'total_challenges': total_challenges,
+                'total_submissions': total_submissions,
+            }
+        }
+        return render(request, 'home.html', context)
+
+
+class APIIndexView(views.APIView):
+    """Vista de documentación de la API (/api/)"""
     permission_classes = [AllowAny]
 
     def get(self, request):
@@ -71,11 +91,14 @@ class IndexView(views.APIView):
                 'total_challenges': total_challenges,
                 'total_submissions': total_submissions,
             },
+            'documentation': 'https://github.com/5ansus/graderServer',
             'client': 'Use grader_qiskit_client.py to interact with this API',
             'leaderboard_url': '/api/leaderboard',
         }
 
         return Response(data)
+
+
 # ==================== AUTENTICACIÓN ====================
 
 class RegisterView(views.APIView):

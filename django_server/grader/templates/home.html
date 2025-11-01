@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>🎃 Halloween Qiskit Challenge - MadQFF'25</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			background: linear-gradient(135deg, #1a1a1a 0%, #2d1b3d 100%);
+			color: #fff;
+			min-height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 20px;
+			overflow: hidden;
+		}
+
+		/* Animación de calabazas flotantes */
+		.pumpkin {
+			position: absolute;
+			font-size: 3rem;
+			opacity: 0.1;
+			animation: float 20s infinite ease-in-out;
+		}
+
+		@keyframes float {
+
+			0%,
+			100% {
+				transform: translateY(0) rotate(0deg);
+			}
+
+			50% {
+				transform: translateY(-30px) rotate(10deg);
+			}
+		}
+
+		.pumpkin:nth-child(1) {
+			top: 10%;
+			left: 10%;
+			animation-delay: 0s;
+		}
+
+		.pumpkin:nth-child(2) {
+			top: 20%;
+			right: 15%;
+			animation-delay: 2s;
+		}
+
+		.pumpkin:nth-child(3) {
+			bottom: 15%;
+			left: 20%;
+			animation-delay: 4s;
+		}
+
+		.pumpkin:nth-child(4) {
+			bottom: 25%;
+			right: 10%;
+			animation-delay: 6s;
+		}
+
+		.container {
+			max-width: 900px;
+			background: rgba(255, 255, 255, 0.05);
+			backdrop-filter: blur(10px);
+			border-radius: 30px;
+			padding: 60px;
+			box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+			border: 2px solid rgba(255, 255, 255, 0.1);
+			text-align: center;
+			position: relative;
+			z-index: 1;
+		}
+
+		.logo {
+			font-size: 5rem;
+			margin-bottom: 20px;
+			animation: pulse 3s infinite;
+		}
+
+		@keyframes pulse {
+
+			0%,
+			100% {
+				transform: scale(1);
+			}
+
+			50% {
+				transform: scale(1.1);
+			}
+		}
+
+		h1 {
+			font-size: 3rem;
+			margin-bottom: 15px;
+			background: linear-gradient(45deg, #ff6b35, #f7931e, #FFD700);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
+			font-weight: bold;
+		}
+
+		.subtitle {
+			color: #aaa;
+			margin-bottom: 20px;
+			font-size: 1.3rem;
+		}
+
+		.event-info {
+			background: rgba(255, 107, 53, 0.1);
+			border: 1px solid rgba(255, 107, 53, 0.3);
+			border-radius: 15px;
+			padding: 30px;
+			margin: 30px 0;
+		}
+
+		.event-info h2 {
+			color: #ff6b35;
+			margin-bottom: 15px;
+			font-size: 1.5rem;
+		}
+
+		.event-info p {
+			color: #ccc;
+			line-height: 1.8;
+			margin-bottom: 10px;
+		}
+
+		.stats-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+			gap: 20px;
+			margin: 40px 0;
+		}
+
+		.stat-box {
+			background: rgba(255, 255, 255, 0.05);
+			padding: 25px;
+			border-radius: 15px;
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			transition: all 0.3s;
+		}
+
+		.stat-box:hover {
+			transform: translateY(-5px);
+			border-color: #ff6b35;
+			box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
+		}
+
+		.stat-number {
+			font-size: 2.5rem;
+			font-weight: bold;
+			background: linear-gradient(45deg, #FFD700, #ff6b35);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			background-clip: text;
+			margin-bottom: 5px;
+		}
+
+		.stat-label {
+			color: #999;
+			font-size: 0.9rem;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+		}
+
+		.buttons {
+			display: flex;
+			gap: 15px;
+			justify-content: center;
+			flex-wrap: wrap;
+			margin-top: 40px;
+		}
+
+		.button {
+			padding: 15px 35px;
+			text-decoration: none;
+			border-radius: 12px;
+			font-weight: bold;
+			font-size: 1.1rem;
+			transition: all 0.3s;
+			display: inline-flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.button.primary {
+			background: linear-gradient(45deg, #FFD700, #FFA500);
+			color: #1a1a1a;
+			box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+		}
+
+		.button.primary:hover {
+			transform: translateY(-3px) scale(1.05);
+			box-shadow: 0 8px 30px rgba(255, 215, 0, 0.6);
+		}
+
+		.button.secondary {
+			background: rgba(255, 107, 53, 0.2);
+			color: #ff6b35;
+			border: 2px solid #ff6b35;
+		}
+
+		.button.secondary:hover {
+			background: rgba(255, 107, 53, 0.3);
+			transform: translateY(-3px);
+		}
+
+		.button.ghost {
+			background: rgba(255, 255, 255, 0.05);
+			color: #fff;
+			border: 2px solid rgba(255, 255, 255, 0.2);
+		}
+
+		.button.ghost:hover {
+			background: rgba(255, 255, 255, 0.1);
+			border-color: rgba(255, 255, 255, 0.4);
+			transform: translateY(-3px);
+		}
+
+		.features {
+			text-align: left;
+			margin: 40px 0;
+		}
+
+		.feature-item {
+			display: flex;
+			align-items: center;
+			gap: 15px;
+			padding: 15px;
+			margin: 10px 0;
+			background: rgba(255, 255, 255, 0.03);
+			border-radius: 10px;
+			transition: all 0.3s;
+		}
+
+		.feature-item:hover {
+			background: rgba(255, 255, 255, 0.06);
+			transform: translateX(5px);
+		}
+
+		.feature-icon {
+			font-size: 2rem;
+			min-width: 50px;
+			text-align: center;
+		}
+
+		.feature-text {
+			color: #ccc;
+		}
+
+		.footer {
+			margin-top: 50px;
+			padding-top: 30px;
+			border-top: 1px solid rgba(255, 255, 255, 0.1);
+			color: #666;
+			font-size: 0.9rem;
+		}
+
+		@media (max-width: 768px) {
+			h1 {
+				font-size: 2rem;
+			}
+
+			.logo {
+				font-size: 3rem;
+			}
+
+			.container {
+				padding: 30px;
+			}
+
+			.buttons {
+				flex-direction: column;
+			}
+
+			.button {
+				width: 100%;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<!-- Calabazas flotantes -->
+	<div class="pumpkin">🎃</div>
+	<div class="pumpkin">🎃</div>
+	<div class="pumpkin">🎃</div>
+	<div class="pumpkin">🎃</div>
+
+	<div class="container">
+		<div class="logo">🎃</div>
+		<h1>Halloween Qiskit Challenge</h1>
+		<p class="subtitle">MadQFF'25 - Madrid Qiskit Fall Fest 2025</p>
+
+		<div class="event-info">
+			<h2>🔬 Quantum Computing Challenge</h2>
+			<p>
+				Join us in solving quantum chemistry problems using Qiskit!
+				Complete 5 tasks to demonstrate your quantum programming skills.
+			</p>
+			<p>
+				<strong>Challenge 35:</strong> Molecular Analysis with VQE, HOMO-LUMO gaps, and QSD
+			</p>
+		</div>
+
+		<div class="stats-grid">
+			<div class="stat-box">
+				<div class="stat-number">{{ stats.total_users }}</div>
+				<div class="stat-label">Participants</div>
+			</div>
+			<div class="stat-box">
+				<div class="stat-number">5</div>
+				<div class="stat-label">Tasks</div>
+			</div>
+			<div class="stat-box">
+				<div class="stat-number">100</div>
+				<div class="stat-label">Max Points</div>
+			</div>
+			<div class="stat-box">
+				<div class="stat-number">{{ stats.total_submissions }}</div>
+				<div class="stat-label">Submissions</div>
+			</div>
+		</div>
+
+		<div class="buttons">
+			<a href="/api/leaderboard" class="button primary">
+				🏆 View Leaderboard
+			</a>
+			<a href="/api/" class="button secondary">
+				📡 API Documentation
+			</a>
+			<a href="/api/download-client" class="button ghost" download>
+				📥 Download Client
+			</a>
+		</div>
+
+		<div class="features">
+			<div class="feature-item">
+				<div class="feature-icon">⚛️</div>
+				<div class="feature-text">
+					<strong>VQE Analysis</strong> - Find ground state energies using Variational Quantum Eigensolver
+				</div>
+			</div>
+			<div class="feature-item">
+				<div class="feature-icon">🔬</div>
+				<div class="feature-text">
+					<strong>HOMO-LUMO Gaps</strong> - Calculate molecular reactivity indicators
+				</div>
+			</div>
+			<div class="feature-item">
+				<div class="feature-icon">🌀</div>
+				<div class="feature-text">
+					<strong>QSD Analysis</strong> - Quantum state discrimination with Krylov subspace
+				</div>
+			</div>
+			<div class="feature-item">
+				<div class="feature-icon">⚡</div>
+				<div class="feature-text">
+					<strong>Real-time Grading</strong> - Instant feedback on your solutions
+				</div>
+			</div>
+			<div class="feature-item">
+				<div class="feature-icon">🏅</div>
+				<div class="feature-text">
+					<strong>Live Leaderboard</strong> - Track your progress and compete with others
+				</div>
+			</div>
+		</div>
+
+		<div class="footer">
+			<p>🎃 Halloween Qiskit Challenge API v1.0</p>
+			<p>Made with 💜 for MadQFF'25</p>
+			<p style="margin-top: 10px;">
+				<a href="/admin/" style="color: #666; text-decoration: none;">Admin Panel</a> •
+				<a href="/api/health" style="color: #666; text-decoration: none;">API Health</a> •
+				<a href="https://github.com/5ansus/graderServer" style="color: #666; text-decoration: none;">GitHub</a>
+			</p>
+		</div>
+	</div>
+</body>
+
+</html>

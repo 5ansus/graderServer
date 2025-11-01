@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    IndexView,
+    HomeView, APIIndexView,
     RegisterView, LoginView, ProfileView,
     ChallengeListView, ChallengeDetailView,
     SubmitCodeView, SubmitResultsView, SubmissionListView, SubmissionDetailView,
@@ -10,32 +10,35 @@ from .views import (
 )
 
 urlpatterns = [
-    # Index / Home
-    path('', IndexView.as_view(), name='index'),
+    # Home (raíz del sitio)
+    path('', HomeView.as_view(), name='home'),
+
+    # API Index / Documentation
+    path('api/', APIIndexView.as_view(), name='api-index'),
 
     # Autenticación
-    path('register', RegisterView.as_view(), name='register'),
-    path('login', LoginView.as_view(), name='login'),
-    path('profile', ProfileView.as_view(), name='profile'),
+    path('api/register', RegisterView.as_view(), name='register'),
+    path('api/login', LoginView.as_view(), name='login'),
+    path('api/profile', ProfileView.as_view(), name='profile'),
 
     # Challenges
-    path('challenges', ChallengeListView.as_view(), name='challenges'),
-    path('challenges/<int:pk>', ChallengeDetailView.as_view(), name='challenge-detail'),
+    path('api/challenges', ChallengeListView.as_view(), name='challenges'),
+    path('api/challenges/<int:pk>', ChallengeDetailView.as_view(), name='challenge-detail'),
 
     # Submissions
-    path('submit', SubmitCodeView.as_view(), name='submit'),
-    path('submit-results', SubmitResultsView.as_view(), name='submit-results'),  # Nuevo endpoint ligero
-    path('submissions', SubmissionListView.as_view(), name='submissions'),
-    path('submissions/<int:pk>', SubmissionDetailView.as_view(), name='submission-detail'),
+    path('api/submit', SubmitCodeView.as_view(), name='submit'),
+    path('api/submit-results', SubmitResultsView.as_view(), name='submit-results'),
+    path('api/submissions', SubmissionListView.as_view(), name='submissions'),
+    path('api/submissions/<int:pk>', SubmissionDetailView.as_view(), name='submission-detail'),
 
     # Leaderboard y estadísticas
-    path('leaderboard', LeaderboardView.as_view(), name='leaderboard'),
-    path('progress', ProgressView.as_view(), name='progress'),
-    path('stats', StatsView.as_view(), name='stats'),
+    path('api/leaderboard', LeaderboardView.as_view(), name='leaderboard'),
+    path('api/progress', ProgressView.as_view(), name='progress'),
+    path('api/stats', StatsView.as_view(), name='stats'),
 
     # Client download
-    path('download-client', DownloadClientView.as_view(), name='download-client'),
+    path('api/download-client', DownloadClientView.as_view(), name='download-client'),
 
     # Health check
-    path('health', HealthCheckView.as_view(), name='health'),
+    path('api/health', HealthCheckView.as_view(), name='health'),
 ]
