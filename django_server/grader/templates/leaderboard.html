@@ -229,6 +229,35 @@
 			box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
 		}
 
+		.passed-challenges {
+			margin-top: 8px;
+			display: flex;
+			gap: 8px;
+			flex-wrap: wrap;
+			justify-content: center;
+		}
+
+		.passed-challenge {
+			background: rgba(255,255,255,0.03);
+			padding: 6px 10px;
+			border-radius: 12px;
+			font-size: 0.85rem;
+			color: #ddd;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+		}
+
+		.task-chip {
+			background: #111827;
+			color: #fff;
+			padding: 4px 8px;
+			border-radius: 8px;
+			font-weight: 600;
+			font-size: 0.8rem;
+			border: 1px solid rgba(255,255,255,0.04);
+		}
+
 		.date-cell {
 			text-align: center;
 			color: #999;
@@ -401,6 +430,18 @@
 									class="task-dot {% if forloop.counter <= entry.challenges_completed %}completed{% endif %}"></span>
 								{% endfor %}
 							</div>
+							{% if entry.passed_tasks_by_challenge %}
+							<div class="passed-challenges" title="Tareas aprobadas por challenge">
+								{% for root, tasks in entry.passed_tasks_by_challenge.items %}
+								<div class="passed-challenge">
+									<span>Ch {{ root }}:</span>
+									{% for t in tasks %}
+									<span class="task-chip">{{ t }}</span>
+									{% endfor %}
+								</div>
+								{% endfor %}
+							</div>
+							{% endif %}
 						</td>
 						<td class="date-cell">
 							{{ entry.last_updated|date:"M d, Y" }}<br>
