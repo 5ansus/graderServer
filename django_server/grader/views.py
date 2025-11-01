@@ -282,6 +282,12 @@ class SubmitResultsView(views.APIView):
             score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_35_task4(results, challenge.max_score)
         elif challenge_id == 355:
             score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_35_task5(results, challenge.max_score)
+        elif challenge_id == 361:
+            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_36_task1(results, challenge.max_score)
+        elif challenge_id == 362:
+            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_36_task2(results, challenge.max_score)
+        elif challenge_id == 363:
+            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_36_task3(results, challenge.max_score)
         elif challenge_id == 35:
             score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_35_results(results)
         else:

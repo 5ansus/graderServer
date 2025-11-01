@@ -523,6 +523,193 @@ class CodeEvaluator:
             return 0, False, error_msg, execution_time
 
     @staticmethod
+    def evaluate_challenge_36_results(results: dict) -> tuple[int, bool, str, float]:
+        """
+        Evaluates Challenge 36 using provided results (no code execution).
+
+        Expected keys in results dict:
+          - 'task361_predictions' (iterable)
+          - 'task361_y_test_hidden' (iterable)
+          - 'task362_generated_images' (np.ndarray-like)
+          - 'task362_test_clean' (np.ndarray-like)
+          - 'task362_generated_shapes' (tuple)
+          - 'task363_total_rewards' (iterable of numbers)
+
+        Returns: (score, passed, feedback, execution_time)
+        """
+        start_time = time.time()
+        try:
+            import numpy as np
+
+            # Required keys
+            required = [
+                'task361_predictions', 'task361_y_test_hidden',
+                'task362_generated_images', 'task362_test_clean', 'task362_generated_shapes',
+                'task363_total_rewards'
+            ]
+
+            missing = [k for k in required if k not in results]
+            if missing:
+                feedback = f"❌ Missing results: {', '.join(missing)}"
+                return 0, False, feedback, time.time() - start_time
+
+            score = 0
+            feedback_parts = []
+
+            # TASK 361: classification accuracy >= 0.98 (20 pts)
+            try:
+                preds = np.asarray(results.get('task361_predictions'))
+                y_hidden = np.asarray(results.get('task361_y_test_hidden'))
+                acc = np.mean(preds == y_hidden)
+                if acc >= 0.98:
+                    score += 20
+                    feedback_parts.append(f"✅ Task 361: Accuracy {acc:.4f} — ACCEPTED (20 pts)")
+                else:
+                    feedback_parts.append(f"❌ Task 361: Accuracy {acc:.4f} — REJECTED (0 pts)")
+            except Exception as e:
+                feedback_parts.append(f"❌ Task 361 ERROR: {str(e)}")
+
+            # TASK 362: image generation MSE <= 0.05 and shapes == (50,16) (20 pts)
+            try:
+                gen = np.asarray(results.get('task362_generated_images'))
+                clean = np.asarray(results.get('task362_test_clean'))
+                shapes = tuple(results.get('task362_generated_shapes'))
+
+                mse = float(np.mean((gen - clean) ** 2))
+                shape_ok = shapes == (50, 16)
+
+                if mse <= 0.05 and shape_ok:
+                    score += 20
+                    feedback_parts.append(f"✅ Task 362: MSE={mse:.6f}, shape={shapes} — ACCEPTED (20 pts)")
+                else:
+                    reasons = []
+                    if mse > 0.05:
+                        reasons.append(f"MSE={mse:.6f} (too high)")
+                    if not shape_ok:
+                        reasons.append(f"shape={shapes} (incorrect)")
+                    feedback_parts.append(f"❌ Task 362: REJECTED ({'; '.join(reasons)})")
+            except Exception as e:
+                feedback_parts.append(f"❌ Task 362 ERROR: {str(e)}")
+
+            # TASK 363: mean(total_rewards) > 0 (20 pts)
+            try:
+                rewards = np.asarray(results.get('task363_total_rewards'))
+                mean_reward = float(np.mean(rewards))
+                if mean_reward > 0:
+                    score += 20
+                    feedback_parts.append(f"✅ Task 363: Mean reward {mean_reward:.6f} — ACCEPTED (20 pts)")
+                else:
+                    feedback_parts.append(f"❌ Task 363: Mean reward {mean_reward:.6f} — REJECTED (0 pts)")
+            except Exception as e:
+                feedback_parts.append(f"❌ Task 363 ERROR: {str(e)}")
+            # For Challenge 36 total max = 60 (3 tasks * 20). Keep same 70% pass threshold => 42
+            passed = score >= 42
+            feedback = "\n".join(feedback_parts)
+            feedback += f"\n\n📊 Total Score: {score}/60"
+            if passed:
+                feedback += "\n🎉 CONGRATULATIONS! You passed Challenge 36."
+            else:
+                feedback += "\n📚 You need ≥70% to pass (>=42/60)."
+
+            return score, passed, feedback, time.time() - start_time
+
+        except Exception as e:
+            return 0, False, f"❌ Evaluation error: {str(e)}\n{traceback.format_exc()}", time.time() - start_time
+
+    @staticmethod
+    def evaluate_challenge_36_task1(results: dict, max_score: int = 20) -> tuple[int, bool, str, float]:
+        """Task 361: classification accuracy >= 0.98 (binary accept/reject)"""
+        start_time = time.time()
+        try:
+            import numpy as np
+            preds = np.asarray(results.get('task361_predictions'))
+            y_hidden = np.asarray(results.get('task361_y_test_hidden'))
+            acc = float(np.mean(preds == y_hidden))
+            if acc >= 0.98:
+                return max_score, True, "✅ Task 361 ACCEPTED", time.time() - start_time
+            else:
+                return 0, False, f"❌ Task 361 REJECTED (accuracy={acc:.4f})", time.time() - start_time
+        except Exception as e:
+            return 0, False, f"❌ Task 361 ERROR: {str(e)}", time.time() - start_time
+
+    @staticmethod
+    def evaluate_challenge_36_task2(results: dict, max_score: int = 20) -> tuple[int, bool, str, float]:
+        """Task 362: image generation MSE and shape check (binary accept/reject)"""
+        start_time = time.time()
+        try:
+            import numpy as np
+            gen = np.asarray(results.get('task362_generated_images'))
+            clean = np.asarray(results.get('task362_test_clean'))
+            shapes = tuple(results.get('task362_generated_shapes'))
+
+            mse = float(np.mean((gen - clean) ** 2))
+            shape_ok = shapes == (50, 16)
+
+            if mse <= 0.05 and shape_ok:
+                return max_score, True, "✅ Task 362 ACCEPTED", time.time() - start_time
+            else:
+                reasons = []
+                if mse > 0.05:
+                    reasons.append(f"MSE={mse:.6f} (too high)")
+                if not shape_ok:
+                    reasons.append(f"shape={shapes} (incorrect)")
+                return 0, False, f"❌ Task 362 REJECTED ({'; '.join(reasons)})", time.time() - start_time
+        except Exception as e:
+            return 0, False, f"❌ Task 362 ERROR: {str(e)}", time.time() - start_time
+
+    @staticmethod
+    def evaluate_challenge_36_task3(results: dict, max_score: int = 20) -> tuple[int, bool, str, float]:
+        """Task 363: mean(total_rewards) > 0 (binary accept/reject)"""
+        start_time = time.time()
+        try:
+            import numpy as np
+            rewards = np.asarray(results.get('task363_total_rewards'))
+            mean_reward = float(np.mean(rewards))
+            if mean_reward > 0:
+                return max_score, True, "✅ Task 363 ACCEPTED", time.time() - start_time
+            else:
+                return 0, False, f"❌ Task 363 REJECTED (mean_reward={mean_reward:.6f})", time.time() - start_time
+        except Exception as e:
+            return 0, False, f"❌ Task 363 ERROR: {str(e)}", time.time() - start_time
+
+    @staticmethod
+    def evaluate_challenge_36(code: str) -> tuple[int, bool, str, float]:
+        """
+        Executes code for Challenge 36 and checks for required variables.
+
+        Expected variables created by executed code:
+          - 'task361_predictions', 'task361_y_test_hidden',
+          - 'task362_generated_images', 'task362_test_clean', 'task362_generated_shapes',
+          - 'task363_total_rewards'
+
+        This mirrors `evaluate_challenge_36_results` but extracts values from executed namespace.
+        """
+        start_time = time.time()
+        try:
+            local_scope = {}
+            exec(code, {}, local_scope)
+
+            required = [
+                'task361_predictions', 'task361_y_test_hidden',
+                'task362_generated_images', 'task362_test_clean', 'task362_generated_shapes',
+                'task363_total_rewards'
+            ]
+
+            missing = [k for k in required if k not in local_scope]
+            if missing:
+                feedback = f"❌ Missing variables: {', '.join(missing)}\nMake sure your notebook/code sets the required variables."
+                return 0, False, feedback, time.time() - start_time
+
+            # Build results dict and delegate to results-based evaluator
+            results = {k: local_scope.get(k) for k in required}
+            return CodeEvaluator.evaluate_challenge_36_results(results)
+
+        except SyntaxError as e:
+            return 0, False, f"❌ Syntax error: {str(e)}", time.time() - start_time
+        except Exception as e:
+            return 0, False, f"❌ Evaluation error: {str(e)}\n{traceback.format_exc()}", time.time() - start_time
+
+    @staticmethod
     def evaluate(challenge_id: int, code: str) -> tuple[int, bool, str, float]:
         """
         Main method to evaluate code according to challenge.
@@ -536,6 +723,7 @@ class CodeEvaluator:
         """
         evaluators = {
             35: CodeEvaluator.evaluate_challenge_35,
+            36: CodeEvaluator.evaluate_challenge_36,
         }
 
         evaluator = evaluators.get(challenge_id)
@@ -561,3 +749,4 @@ def capture_stdout(func, *args, **kwargs):
         return result, output
     finally:
         sys.stdout = old_stdout
+

@@ -228,3 +228,53 @@ def evaluate_task5(final_energy_perturbed: float) -> Dict[str, Any]:
         challenge_id=355,
         final_energy_perturbed=final_energy_perturbed
     )
+    
+def evaluate_task6(task361_predictions, task361_y_test_hidden) -> Dict[str, Any]:
+    """
+    Evaluate and submit Task 5 (Final Energy Perturbed) for Challenge 35.
+    Returns ACCEPTED or REJECTED (binary).
+
+    Args:
+        final_energy_perturbed: Final energy for perturbed system
+
+    Returns:
+        Dictionary with evaluation results
+    """
+    return submit_results(
+        challenge_id=361,
+        task361_predictions=task361_predictions,
+        task361_y_test_hidden=task361_y_test_hidden
+    )
+
+def evaluate_task7(task362_generated_images, task362_test_clean, task362_generated_shapes) -> Dict[str, Any]:
+    """
+    Evaluate and submit Task 5 (Final Energy Perturbed) for Challenge 35.
+    Returns ACCEPTED or REJECTED (binary).
+
+    Args:
+        final_energy_perturbed: Final energy for perturbed system
+    Returns:
+        Dictionary with evaluation results
+    """
+    return submit_results(
+        challenge_id=362,
+        task362_generated_images=task362_generated_images,
+        task362_test_clean=task362_test_clean,
+        task362_generated_shapes=task362_generated_shapes
+    )
+    
+def evaluate_task8(task363_total_rewards) -> Dict[str, Any]:
+    """
+    Evaluate and submit Task 8 (Total Rewards) for Challenge 35.
+    Returns ACCEPTED or REJECTED (binary).
+
+    Args:
+        task363_total_rewards: Total rewards for task 363
+
+    Returns:
+        Dictionary with evaluation results
+    """
+    return submit_results(
+        challenge_id=363,
+        task363_total_rewards=task363_total_rewards
+    )

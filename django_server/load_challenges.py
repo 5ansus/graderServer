@@ -53,6 +53,31 @@ challenges_data = [
         'difficulty': 'medium',
         'is_active': True,
     },
+    # New: Challenge 36 tasks (361-363)
+    {
+        'id': 361,
+        'name': 'Challenge 36 - Task 1: Classification Accuracy (361)',
+        'description': 'Evaluate predictions against hidden labels; require >=98% accuracy.',
+        'max_score': 20,
+        'difficulty': 'medium',
+        'is_active': True,
+    },
+    {
+        'id': 362,
+        'name': 'Challenge 36 - Task 2: Image Generation (362)',
+        'description': 'Generated images',
+        'max_score': 20,
+        'difficulty': 'medium',
+        'is_active': True,
+    },
+    {
+        'id': 363,
+        'name': 'Challenge 36 - Task 3: Reinforcement Rewards (363)',
+        'description': 'Total rewards',
+        'max_score': 20,
+        'difficulty': 'easy',
+        'is_active': True,
+    },
 ]
 
 print("Cargando challenges...")
