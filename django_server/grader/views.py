@@ -456,7 +456,7 @@ class DownloadClientView(views.APIView):
             # views.py está en django_server/grader/views.py
             # manage.py está en django_server/
             base_dir = Path(__file__).resolve().parent.parent
-        
+
         client_file = base_dir / 'grader_qiskit_client.py'
 
         if client_file.exists():
@@ -470,7 +470,7 @@ class DownloadClientView(views.APIView):
             # Mostrar información de debug
             import os
             files_in_dir = os.listdir(base_dir) if os.path.exists(base_dir) else []
-            
+
             return HttpResponse(
                 f'<h3>Client file not found</h3>'
                 f'<p><strong>Looking for:</strong> {client_file}</p>'
