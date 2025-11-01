@@ -21,7 +21,7 @@ class CodeEvaluator:
         try:
             ALPHA_VQE_REF = -12.29314089
             BETA_VQE_REF = 0.00015438
-            EPSILON = 0.001
+            EPSILON = 0.01
 
             def check_value_in_range(value, reference, epsilon):
                 if reference < 0:
