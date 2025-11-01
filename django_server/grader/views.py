@@ -387,6 +387,16 @@ class LeaderboardView(views.APIView):
             '-total_score', '-challenges_completed', 'last_updated'
         )[:limit]
 
+        # Compute challenge roots (e.g., 351 -> 35) from active challenges to build columns
+        active_challenge_ids = Challenge.objects.filter(is_active=True).values_list('id', flat=True)
+        challenge_roots_set = set()
+        for cid in active_challenge_ids:
+            try:
+                challenge_roots_set.add(int(cid) // 10)
+            except Exception:
+                continue
+        challenge_roots = sorted(challenge_roots_set)
+
         leaderboard_data = []
         for idx, entry in enumerate(leaderboard_entries, start=1):
             # Gather passed tasks for this user grouped by challenge root (e.g., 351->35)
@@ -402,15 +412,23 @@ class LeaderboardView(views.APIView):
             # Sort the lists for consistency
             for k in passed_by_challenge:
                 passed_by_challenge[k].sort()
-
-            leaderboard_data.append({
+            # Create entry dict and also expose per-root lists for template convenience
+            entry_dict = {
                 'rank': idx,
                 'username': entry.user.username,
                 'total_score': entry.total_score,
                 'challenges_completed': entry.challenges_completed,
                 'last_updated': entry.last_updated,
                 'passed_tasks_by_challenge': passed_by_challenge,
-            })
+            }
+
+            for root in challenge_roots:
+                entry_dict[f'passed_root_{root}'] = passed_by_challenge.get(root, [])
+
+            # Also expose an ordered list of (root, tasks) pairs to simplify template rendering
+            entry_dict['passed_roots_pairs'] = [(root, passed_by_challenge.get(root, [])) for root in challenge_roots]
+
+            leaderboard_data.append(entry_dict)
 
         # Si el usuario está autenticado, buscar su posición
         user_position = None
@@ -421,12 +439,23 @@ class LeaderboardView(views.APIView):
             except Leaderboard.DoesNotExist:
                 user_position = None
 
+        # Compute challenge roots (e.g., 351 -> 35) from active challenges to build columns
+        active_challenge_ids = Challenge.objects.filter(is_active=True).values_list('id', flat=True)
+        challenge_roots_set = set()
+        for cid in active_challenge_ids:
+            try:
+                challenge_roots_set.add(int(cid) // 10)
+            except Exception:
+                continue
+        challenge_roots = sorted(challenge_roots_set)
+
         # Si se solicita HTML (navegador), renderizar template
         if 'text/html' in request.headers.get('Accept', ''):
             context = {
                 'leaderboard': leaderboard_data,
                 'user_position': user_position,
-                'total_users': Leaderboard.objects.count()
+                'total_users': Leaderboard.objects.count(),
+                'challenge_roots': challenge_roots,
             }
             return render(request, 'leaderboard.html', context)
 
@@ -434,7 +463,8 @@ class LeaderboardView(views.APIView):
         return Response({
             'leaderboard': leaderboard_data,
             'user_position': user_position,
-            'total_users': Leaderboard.objects.count()
+            'total_users': Leaderboard.objects.count(),
+            'challenge_roots': challenge_roots,
         })
 
 
