@@ -71,7 +71,6 @@ class IndexView(views.APIView):
                 'total_challenges': total_challenges,
                 'total_submissions': total_submissions,
             },
-            'documentation': 'https://github.com/5ansus/graderServer',
             'client': 'Use grader_qiskit_client.py to interact with this API',
             'leaderboard_url': '/api/leaderboard',
         }
