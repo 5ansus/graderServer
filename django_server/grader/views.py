@@ -249,16 +249,17 @@ class SubmitResultsView(views.APIView):
 
         # Evaluar los resultados (sin ejecutar código)
         # Challenge 351-355 son tasks individuales de Challenge 35
+        # Pasar max_score dinámicamente desde el challenge
         if challenge_id == 351:
-            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_35_task1(results)
+            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_35_task1(results, challenge.max_score)
         elif challenge_id == 352:
-            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_35_task2(results)
+            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_35_task2(results, challenge.max_score)
         elif challenge_id == 353:
-            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_35_task3(results)
+            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_35_task3(results, challenge.max_score)
         elif challenge_id == 354:
-            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_35_task4(results)
+            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_35_task4(results, challenge.max_score)
         elif challenge_id == 355:
-            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_35_task5(results)
+            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_35_task5(results, challenge.max_score)
         elif challenge_id == 35:
             score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_35_results(results)
         else:

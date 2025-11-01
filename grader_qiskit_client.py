@@ -115,56 +115,9 @@ def login(username: str, password: str = None) -> Dict[str, Any]:
     return response
 
 
-def logout():
-    if TOKEN_FILE.exists():
-        TOKEN_FILE.unlink()
-        print("✅ Sesión closed")
-    else:
-        print("⚠️ No active account")
-
-
-def whoami() -> Dict[str, Any]:
-    return _make_request('GET', '/profile', headers=_get_headers())
-
-
-# ==================== CHALLENGES ====================
-
-def get_challenges() -> Dict[str, Any]:
-    return _make_request('GET', '/challenges', headers=_get_headers())
-
-
-def get_challenge(challenge_id: int) -> Dict[str, Any]:
-    return _make_request('GET', f'/challenges/{challenge_id}', headers=_get_headers())
-
-
-# ==================== SUBMISSIONS ====================
-
-def submit(challenge_id: int, code: str) -> Dict[str, Any]:
-    """Submit code to be executed on the server (legacy method)"""
-    response = _make_request('POST', '/submit',
-                            headers=_get_headers(),
-                            json={'challenge_id': challenge_id, 'code': code})
-
-    passed_emoji = "✅" if response.get('passed') else "❌"
-    print(f"\n{passed_emoji} Score: {response.get('score', 0)}/{response.get('max_score', 100)}")
-    print(f"Feedback: {response.get('feedback', 'No feedback')}\n")
-
-    return response
-
-
 def submit_results(challenge_id: int, **results) -> Dict[str, Any]:
     """
     Submit only the results (lightweight, no code execution on server).
-
-    Example for Challenge 35:
-        submit_results(35,
-            alpha_vqe_result=-2.1847,
-            beta_vqe_result=0.9375,
-            alpha_gap_ev=33.57,
-            beta_gap_ev=27.21,
-            alpha_homo_lumo=1.234,
-            beta_homo_lumo=1.0
-        )
     """
     response = _make_request('POST', '/submit-results',
                             headers=_get_headers(),
@@ -175,142 +128,103 @@ def submit_results(challenge_id: int, **results) -> Dict[str, Any]:
     print(f"Feedback: {response.get('feedback', 'No feedback')}\n")
 
     return response
-def submit_function(challenge_id: int, func):
-    import inspect
-    code = inspect.getsource(func)
-    return submit(challenge_id, code)
 
 
-def get_submissions(challenge_id: Optional[int] = None) -> Dict[str, Any]:
-    params = {'challenge_id': challenge_id} if challenge_id else {}
-    return _make_request('GET', '/submissions',
-                        headers=_get_headers(),
-                        params=params)
+# ==================== CHALLENGE 35 INDIVIDUAL TASK EVALUATION ====================
+
+def evaluate_task1(alpha_vqe_result: float, beta_vqe_result: float) -> Dict[str, Any]:
+    """
+    Evaluate and submit Task 1 (VQE) for Challenge 35.
+    Returns ACCEPTED or REJECTED (binary).
+
+    Args:
+        alpha_vqe_result: Alpha molecule VQE ground state energy
+        beta_vqe_result: Beta molecule VQE ground state energy
+
+    Returns:
+        Dictionary with evaluation results
+    """
+    return submit_results(
+        challenge_id=351,  # Task 1
+        alpha_vqe_result=alpha_vqe_result,
+        beta_vqe_result=beta_vqe_result
+    )
 
 
-def get_submission(submission_id: int) -> Dict[str, Any]:
-    return _make_request('GET', f'/submissions/{submission_id}',
-                        headers=_get_headers())
+def evaluate_task2(alpha_gap_ev: float, beta_gap_ev: float,
+                   alpha_homo_lumo: float, beta_homo_lumo: float) -> Dict[str, Any]:
+    """
+    Evaluate and submit Task 2 (HOMO-LUMO) for Challenge 35.
+    Returns ACCEPTED or REJECTED (binary).
+
+    Args:
+        alpha_gap_ev: Alpha HOMO-LUMO gap in eV
+        beta_gap_ev: Beta HOMO-LUMO gap in eV
+        alpha_homo_lumo: Alpha HOMO-LUMO gap in Hartree
+        beta_homo_lumo: Beta HOMO-LUMO gap in Hartree
+
+    Returns:
+        Dictionary with evaluation results
+    """
+    return submit_results(
+        challenge_id=352,  # Task 2
+        alpha_gap_ev=alpha_gap_ev,
+        beta_gap_ev=beta_gap_ev,
+        alpha_homo_lumo=alpha_homo_lumo,
+        beta_homo_lumo=beta_homo_lumo
+    )
 
 
-# ==================== LEADERBOARD Y PROGRESO ====================
+def evaluate_task3(alpha_index: int, beta_index: int, fidelity: float) -> Dict[str, Any]:
+    """
+    Evaluate and submit Task 3 (QSD) for Challenge 35.
+    Returns ACCEPTED or REJECTED (binary).
 
-def get_leaderboard(limit: int = 50) -> Dict[str, Any]:
-    return _make_request('GET', '/leaderboard',
-                        headers=_get_headers(),
-                        params={'limit': limit})
+    Args:
+        alpha_index: Index of best matching alpha state
+        beta_index: Index of best matching beta state
+        fidelity: Fidelity between the matched states
 
-
-def get_progress() -> Dict[str, Any]:
-    return _make_request('GET', '/progress', headers=_get_headers())
-
-
-def get_stats() -> Dict[str, Any]:
-    return _make_request('GET', '/stats', headers=_get_headers())
-
-
-# ==================== FUNCIONES HELPER ESPECÍFICAS ====================
-
-def graderAHC1(code: str) -> Tuple[int, bool, str]:
-    result = submit(1, code)
-    return result['score'], result['passed'], result['feedback']
+    Returns:
+        Dictionary with evaluation results
+    """
+    return submit_results(
+        challenge_id=353,  # Task 3
+        alpha_index=alpha_index,
+        beta_index=beta_index,
+        fidelity=fidelity
+    )
 
 
-def graderAHC2(code: str) -> Tuple[int, bool, str]:
-    result = submit(2, code)
-    return result['score'], result['passed'], result['feedback']
+def evaluate_task4(final_energy_beta: float) -> Dict[str, Any]:
+    """
+    Evaluate and submit Task 4 (Final Energy Beta) for Challenge 35.
+    Returns ACCEPTED or REJECTED (binary).
+
+    Args:
+        final_energy_beta: Final energy for beta molecule
+
+    Returns:
+        Dictionary with evaluation results
+    """
+    return submit_results(
+        challenge_id=354,  # Task 4
+        final_energy_beta=final_energy_beta
+    )
 
 
-def graderAHC3(code: str) -> Tuple[int, bool, str]:
-    result = submit(3, code)
-    return result['score'], result['passed'], result['feedback']
+def evaluate_task5(final_energy_perturbed: float) -> Dict[str, Any]:
+    """
+    Evaluate and submit Task 5 (Final Energy Perturbed) for Challenge 35.
+    Returns ACCEPTED or REJECTED (binary).
 
+    Args:
+        final_energy_perturbed: Final energy for perturbed system
 
-def graderAHC4(code: str) -> Tuple[int, bool, str]:
-    result = submit(4, code)
-    return result['score'], result['passed'], result['feedback']
-
-
-def graderAHC5(code: str) -> Tuple[int, bool, str]:
-    result = submit(5, code)
-    return result['score'], result['passed'], result['feedback']
-
-
-# ==================== UTILIDADES ====================
-
-def configure(server_url: str = "https://UAMCPrA.pythonanywhere.com"):
-    global BASE_URL
-    BASE_URL = f"{server_url.rstrip('/')}/api"
-    print(f"THIS IS NOT A METHOD U SHOULD BE USING AS A CLIENT")
-
-def show_challenges():
-    challenges = get_challenges()
-
-    print("\n" + "="*70)
-    print("============= CHALLENGES =================")
-    print("="*70 + "\n")
-
-    for ch in challenges['challenges']:
-        status = "✅" if ch['completed'] else "⏳"
-        score_str = f"{ch['best_score']}/{ch['max_score']}" if ch['best_score'] > 0 else "No intentado"
-
-        print(f"{status} Challenge {ch['id']}: {ch['name']}")
-        print(f"   Score: {score_str}")
-        print()
-
-
-def show_leaderboard(top: int = 10):
-    leaderboard = get_leaderboard(limit=top)
-
-    print("\n" + "="*70)
-    print(" ============= LEADERBOARD ==========")
-    print("="*70 + "\n")
-
-    print(f"You are at: #{leaderboard['user_position']}\n")
-
-    for i, user in enumerate(leaderboard['leaderboard'][:top], 1):
-        medal = "🥇" if i == 1 else "🥈" if i == 2 else "🥉" if i == 3 else "  "
-        print(f"{medal} {i:2d}. {user['username']:20s} | {user['total_score']:4d} pts | {user['challenges_completed']} challenges")
-
-
-def show_progress():
-    progress = get_progress()
-    profile = whoami()
-
-    print("\n" + "="*70)
-    print("📊 YOUR PROGRESS")
-    print("="*70 + "\n")
-
-    print(f"User: {profile['user']['username']}")
-    print(f"Total Score: {progress['total_score']} puntos")
-    print(f"Challenges completed: {progress['challenges_completed']}/{progress['total_challenges']}")
-    print(f"Total submissions: {progress['total_submissions']}")
-
-    if progress['total_challenges'] > 0:
-        percentage = (progress['challenges_completed'] / progress['total_challenges']) * 100
-        print(f"Progress: {percentage:.1f}%")
-
-        # Barra de progreso
-        bar_length = 50
-        filled = int(bar_length * percentage / 100)
-        bar = "█" * filled + "░" * (bar_length - filled)
-        print(f"[{bar}]")
-
-
-# ==================== TESTING ====================
-
-def test_connection() -> bool:
-    try:
-        response = requests.get(f"{BASE_URL.rsplit('/api', 1)[0]}/api/health", timeout=5)
-        if response.status_code == 200:
-            print(f"✅ Conexión exitosa con {BASE_URL}")
-            return True
-        else:
-            print(f"⚠️ Servidor respondió con código {response.status_code}")
-            return False
-    except Exception as e:
-        print(f"❌ Conection error: {e}")
-        print(f"URL tryout but not connected to (contact the co-organizers): {BASE_URL}")
-        return False
-
-
+    Returns:
+        Dictionary with evaluation results
+    """
+    return submit_results(
+        challenge_id=355,
+        final_energy_perturbed=final_energy_perturbed
+    )

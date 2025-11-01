@@ -15,7 +15,7 @@ class CodeEvaluator:
     """
 
     @staticmethod
-    def evaluate_challenge_35_task1(results: dict) -> tuple[int, bool, str, float]:
+    def evaluate_challenge_35_task1(results: dict, max_score: int = 20) -> tuple[int, bool, str, float]:
         """Task 1: VQE Analysis - Binary accept/reject"""
         start_time = time.time()
         try:
@@ -39,14 +39,14 @@ class CodeEvaluator:
             beta_ok = check_value_in_range(beta_energy, BETA_VQE_REF, EPSILON)
 
             if alpha_ok and beta_ok:
-                return 20, True, "✅ Task 1 ACCEPTED", time.time() - start_time
+                return max_score, True, "✅ Task 1 ACCEPTED", time.time() - start_time
             else:
                 return 0, False, "❌ Task 1 REJECTED", time.time() - start_time
         except Exception as e:
             return 0, False, f"❌ Task 1 ERROR: {str(e)}", time.time() - start_time
 
     @staticmethod
-    def evaluate_challenge_35_task2(results: dict) -> tuple[int, bool, str, float]:
+    def evaluate_challenge_35_task2(results: dict, max_score: int = 20) -> tuple[int, bool, str, float]:
         """Task 2: HOMO-LUMO Gap - Binary accept/reject"""
         start_time = time.time()
         try:
@@ -78,14 +78,14 @@ class CodeEvaluator:
             )
 
             if all_ok:
-                return 20, True, "✅ Task 2 ACCEPTED", time.time() - start_time
+                return max_score, True, "✅ Task 2 ACCEPTED", time.time() - start_time
             else:
                 return 0, False, "❌ Task 2 REJECTED", time.time() - start_time
         except Exception as e:
             return 0, False, f"❌ Task 2 ERROR: {str(e)}", time.time() - start_time
 
     @staticmethod
-    def evaluate_challenge_35_task3(results: dict) -> tuple[int, bool, str, float]:
+    def evaluate_challenge_35_task3(results: dict, max_score: int = 20) -> tuple[int, bool, str, float]:
         """Task 3: QSD - Binary accept/reject"""
         start_time = time.time()
         try:
@@ -111,14 +111,14 @@ class CodeEvaluator:
             fidelity_ok = check_value_in_range(fidelity, FIDELITY_REF, EPSILON)
 
             if indices_ok and fidelity_ok:
-                return 30, True, "✅ Task 3 ACCEPTED", time.time() - start_time
+                return max_score, True, "✅ Task 3 ACCEPTED", time.time() - start_time
             else:
                 return 0, False, "❌ Task 3 REJECTED", time.time() - start_time
         except Exception as e:
             return 0, False, f"❌ Task 3 ERROR: {str(e)}", time.time() - start_time
 
     @staticmethod
-    def evaluate_challenge_35_task4(results: dict) -> tuple[int, bool, str, float]:
+    def evaluate_challenge_35_task4(results: dict, max_score: int = 20) -> tuple[int, bool, str, float]:
         """Task 4: Final Energy Beta - Binary accept/reject"""
         start_time = time.time()
         try:
@@ -130,14 +130,14 @@ class CodeEvaluator:
             upper = FINAL_ENERGY_BETA_REF * (1 + EPSILON)
 
             if lower <= energy_beta <= upper:
-                return 15, True, "✅ Task 4 ACCEPTED", time.time() - start_time
+                return max_score, True, "✅ Task 4 ACCEPTED", time.time() - start_time
             else:
                 return 0, False, "❌ Task 4 REJECTED", time.time() - start_time
         except Exception as e:
             return 0, False, f"❌ Task 4 ERROR: {str(e)}", time.time() - start_time
 
     @staticmethod
-    def evaluate_challenge_35_task5(results: dict) -> tuple[int, bool, str, float]:
+    def evaluate_challenge_35_task5(results: dict, max_score: int = 20) -> tuple[int, bool, str, float]:
         """Task 5: Final Energy Perturbed - Binary accept/reject"""
         start_time = time.time()
         try:
@@ -150,7 +150,7 @@ class CodeEvaluator:
             upper = FINAL_ENERGY_PERTURBED_REF * (1 - EPSILON)
 
             if lower <= energy_perturbed <= upper:
-                return 15, True, "✅ Task 5 ACCEPTED", time.time() - start_time
+                return max_score, True, "✅ Task 5 ACCEPTED", time.time() - start_time
             else:
                 return 0, False, "❌ Task 5 REJECTED", time.time() - start_time
         except Exception as e:
