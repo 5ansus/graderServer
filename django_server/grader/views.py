@@ -389,12 +389,27 @@ class LeaderboardView(views.APIView):
 
         leaderboard_data = []
         for idx, entry in enumerate(leaderboard_entries, start=1):
+            # Gather passed tasks for this user grouped by challenge root (e.g., 351->35)
+            passed_task_ids = Submission.objects.filter(user=entry.user, passed=True).values_list('challenge_id', flat=True).distinct()
+            passed_by_challenge = {}
+            for cid in passed_task_ids:
+                try:
+                    root = int(cid) // 10
+                except Exception:
+                    root = cid
+                passed_by_challenge.setdefault(root, []).append(int(cid))
+
+            # Sort the lists for consistency
+            for k in passed_by_challenge:
+                passed_by_challenge[k].sort()
+
             leaderboard_data.append({
                 'rank': idx,
                 'username': entry.user.username,
                 'total_score': entry.total_score,
                 'challenges_completed': entry.challenges_completed,
-                'last_updated': entry.last_updated
+                'last_updated': entry.last_updated,
+                'passed_tasks_by_challenge': passed_by_challenge,
             })
 
         # Si el usuario está autenticado, buscar su posición
