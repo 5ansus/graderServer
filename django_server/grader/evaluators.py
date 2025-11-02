@@ -736,6 +736,307 @@ class CodeEvaluator:
         except Exception as e:
             return 0, False, f"❌ Critical evaluation error: {str(e)}", 0.0
 
+    # -------------------- Challenge 37: server-side individual task evaluators --------------------
+    @staticmethod
+    def evaluate_challenge_37_task371(results: dict, max_score: int = 10) -> tuple[int, bool, str, float]:
+        """Task 1.1 for Challenge 37 (serialized client payload)
+
+        Mirrors server_grade_task_1_1 from the challenge reference.
+        """
+        import time
+        start = time.time()
+        try:
+            # Expecting keys: num_qubits, num_clbits, ops, counts
+            score = int(results.get('score', 0)) if 'score' in results else 0
+            # If results contain the detailed dict produced by client_task_1_1, compute same scoring
+            num_qubits = results.get('num_qubits')
+            if num_qubits != 2:
+                return 0, False, "❌ Circuit should have exactly 2 qubits", time.time() - start
+
+            feedback_lines = []
+            ops = results.get('ops', [])
+
+            score = 0
+            if 'h' in ops:
+                score += 3
+                feedback_lines.append("✓ Hadamard gate found")
+            else:
+                feedback_lines.append("❌ Missing Hadamard gate")
+
+            if 'cx' in ops:
+                score += 3
+                feedback_lines.append("✓ CNOT gate found")
+            else:
+                feedback_lines.append("❌ Missing CNOT gate")
+
+            if 'measure' in ops:
+                score += 2
+                feedback_lines.append("✓ Measurement operations found")
+            else:
+                feedback_lines.append("❌ Missing measurement operations")
+
+            counts = results.get('counts', {}) or {}
+            total_shots = sum(counts.values()) if counts else 0
+            bell_states = counts.get('00', 0) + counts.get('11', 0)
+            bell_ratio = (bell_states / total_shots) if total_shots > 0 else 0.0
+
+            if bell_ratio >= 0.95:
+                score += 2
+                feedback_lines.append(f"✓ Excellent Bell state: {bell_ratio:.2%} correct outcomes")
+            elif bell_ratio >= 0.85:
+                score += 1
+                feedback_lines.append(f"⚠️ Good Bell state: {bell_ratio:.2%} correct outcomes")
+            else:
+                feedback_lines.append(f"❌ Poor Bell state: {bell_ratio:.2%} correct outcomes")
+
+            passed = score >= max_score * 0.7
+            return score, passed, "\n".join(feedback_lines), time.time() - start
+        except Exception as e:
+            return 0, False, f"❌ Error during evaluation: {str(e)}", time.time() - start
+
+    @staticmethod
+    def evaluate_challenge_37_task372(results: dict, max_score: int = 10) -> tuple[int, bool, str, float]:
+        """Task 1.2 for Challenge 37 (noise model)"""
+        import time
+        start = time.time()
+        try:
+            score = 0
+            feedback = []
+            if results is None:
+                return 0, False, "❌ Noise model not created", time.time() - start
+
+            if results.get('has_structure'):
+                score += 5
+                feedback.append("✓ Noise model structure is correct")
+            else:
+                feedback.append("❌ Invalid noise model structure")
+
+            counts_noisy = results.get('counts_noisy', {}) or {}
+            wrong_states = counts_noisy.get('01', 0) + counts_noisy.get('10', 0)
+            total = sum(counts_noisy.values()) if counts_noisy else 0
+            error_rate = (wrong_states / total) if total > 0 else 0.0
+
+            if 0.05 <= error_rate <= 0.30:
+                score += 5
+                feedback.append(f"✓ Realistic noise level detected: {error_rate:.2%} errors")
+            elif error_rate > 0:
+                score += 3
+                feedback.append(f"⚠️ Noise detected but unusual level: {error_rate:.2%}")
+            else:
+                feedback.append("❌ No noise effect detected")
+
+            passed = score >= max_score * 0.7
+            return score, passed, "\n".join(feedback), time.time() - start
+        except Exception as e:
+            return 0, False, f"❌ Error during evaluation: {str(e)}", time.time() - start
+
+    @staticmethod
+    def evaluate_challenge_37_task373(results: dict, max_score: int = 15) -> tuple[int, bool, str, float]:
+        """Task 1.3 for Challenge 37 (fidelity vs noise)"""
+        import time
+        start = time.time()
+        try:
+            score = 0
+            feedback = []
+            test_noise_levels = results.get('noise_levels', [])
+            fidelities = results.get('fidelities', [])
+
+            if len(fidelities) != len(test_noise_levels):
+                return 0, False, "❌ Function should return same number of fidelities as noise levels", time.time() - start
+
+            if fidelities and fidelities[0] >= 0.98:
+                score += 3
+                feedback.append(f"✓ Perfect fidelity at 0% noise: {fidelities[0]:.4f}")
+            else:
+                feedback.append(f"⚠️ Low fidelity at 0% noise: {fidelities[0] if fidelities else 'N/A'}")
+
+            is_decreasing = all(fidelities[i] >= fidelities[i+1] for i in range(len(fidelities)-1)) if fidelities else False
+            if is_decreasing:
+                score += 5
+                feedback.append("✓ Fidelity correctly decreases with noise")
+            else:
+                feedback.append("❌ Fidelity should decrease monotonically with noise")
+
+            if fidelities and 0.85 <= fidelities[2] <= 0.95:
+                score += 4
+                feedback.append(f"✓ Realistic fidelity at 10% noise: {fidelities[2]:.4f}")
+            else:
+                score += 2
+                feedback.append(f"⚠️ Unusual fidelity at 10% noise: {fidelities[2] if len(fidelities) > 2 else 'N/A'}")
+
+            if fidelities and fidelities[-1] >= 0.5:
+                score += 3
+                feedback.append(f"✓ Reasonable fidelity at 20% noise: {fidelities[-1]:.4f}")
+            else:
+                feedback.append(f"⚠️ Very low fidelity at 20% noise: {fidelities[-1] if fidelities else 'N/A'}")
+
+            passed = score >= max_score * 0.7
+            return score, passed, "\n".join(feedback), time.time() - start
+        except Exception as e:
+            return 0, False, f"❌ Error during evaluation: {str(e)}", time.time() - start
+
+    @staticmethod
+    def evaluate_challenge_37_task374(results: dict, max_score: int = 15) -> tuple[int, bool, str, float]:
+        """Task 2.1: three-qubit encoding"""
+        import time
+        start = time.time()
+        try:
+            score = 0
+            feedback = []
+            cx_count = results.get('cx_count', 0)
+            if cx_count == 2:
+                score += 5
+                feedback.append("✓ Correct number of CNOT gates (2)")
+            else:
+                feedback.append(f"❌ Expected 2 CNOT gates, found {cx_count}")
+
+            overlap = float(results.get('overlap', 0.0))
+            if overlap >= 0.99:
+                score += 10
+                feedback.append(f"✓ Perfect encoding: |1⟩ → |111⟩ (fidelity: {overlap:.4f})")
+            elif overlap >= 0.90:
+                score += 7
+                feedback.append(f"⚠️ Good encoding but not perfect (fidelity: {overlap:.4f})")
+            else:
+                feedback.append(f"❌ Incorrect encoding (fidelity: {overlap:.4f})")
+
+            passed = score >= max_score * 0.7
+            return score, passed, "\n".join(feedback), time.time() - start
+        except Exception as e:
+            return 0, False, f"❌ Error during evaluation: {str(e)}", time.time() - start
+
+    @staticmethod
+    def evaluate_challenge_37_task375(results: dict, max_score: int = 15) -> tuple[int, bool, str, float]:
+        """Task 2.2: syndrome measurement"""
+        import time
+        start = time.time()
+        try:
+            score = 0
+            feedback = []
+            counts_map = results.get('counts_by_error', {}) or {}
+            expected_syndromes = {0: '10', 1: '11', 2: '01'}
+            for error_qubit in [0, 1, 2]:
+                counts = counts_map.get(str(error_qubit), {})
+                if counts:
+                    most_common = max(counts, key=counts.get)
+                else:
+                    most_common = ''
+                if most_common == expected_syndromes[error_qubit]:
+                    score += 5
+                    feedback.append(f"✓ Correct syndrome for error on qubit {error_qubit}: {most_common}")
+                else:
+                    feedback.append(f"❌ Wrong syndrome for error on qubit {error_qubit}: got {most_common}, expected {expected_syndromes[error_qubit]}")
+
+            passed = score >= max_score * 0.7
+            return score, passed, "\n".join(feedback), time.time() - start
+        except Exception as e:
+            return 0, False, f"❌ Error during evaluation: {str(e)}", time.time() - start
+
+    @staticmethod
+    def evaluate_challenge_37_task376(results: dict, max_score: int = 20) -> tuple[int, bool, str, float]:
+        """Task 3.2: error correction effectiveness"""
+        import time
+        import numpy as _np
+        start = time.time()
+        try:
+            unprotected_list = results.get('unprotected', [])
+            protected_list = results.get('protected', [])
+            all_improvements = []
+            for up, pr in zip(unprotected_list, protected_list):
+                if pr > up:
+                    improvement = (pr - up) / (up + 1e-6) * 100
+                    all_improvements.append(improvement)
+
+            if len(all_improvements) == 5:
+                score = 5
+                feedback = ["✓ Both functions work with hidden test cases"]
+            else:
+                return 0, False, "❌ Functions failed on some hidden test cases", time.time() - start
+
+            avg_improvement = float(_np.mean(all_improvements))
+            if avg_improvement >= 50:
+                score += 15
+                feedback.append(f"✓ Excellent error correction: {avg_improvement:.1f}% average improvement")
+            elif avg_improvement >= 30:
+                score += 12
+                feedback.append(f"✓ Good error correction: {avg_improvement:.1f}% average improvement")
+            elif avg_improvement >= 10:
+                score += 10
+                feedback.append(f"✓ Modest error correction: {avg_improvement:.1f}% average improvement")
+            else:
+                feedback.append(f"❌ Insufficient error correction: {avg_improvement:.1f}% average improvement")
+
+            passed = score >= max_score * 0.7
+            return score, passed, "\n".join(feedback), time.time() - start
+        except Exception as e:
+            return 0, False, f"❌ Error during evaluation: {str(e)}", time.time() - start
+
+    @staticmethod
+    def evaluate_challenge_37_task377(results: dict, max_score: int = 10) -> tuple[int, bool, str, float]:
+        """Task 4.1: Shor code encoding"""
+        import time
+        start = time.time()
+        try:
+            h_count = results.get('h_count', 0)
+            cx_count = results.get('cx_count', 0)
+            score = 0
+            feedback = []
+            if h_count == 3:
+                score += 3
+                feedback.append("✓ Correct number of Hadamard gates (3)")
+            else:
+                feedback.append(f"⚠️ Expected 3 Hadamard gates, found {h_count}")
+
+            if cx_count == 8:
+                score += 4
+                feedback.append("✓ Correct number of CNOT gates (8)")
+            elif 6 <= cx_count <= 10:
+                score += 2
+                feedback.append(f"⚠️ Close number of CNOT gates: {cx_count}")
+            else:
+                feedback.append(f"❌ Expected 8 CNOT gates, found {cx_count}")
+
+            if results.get('num_qubits', 0) >= 9:
+                score += 3
+                feedback.append("✓ Circuit uses at least 9 qubits")
+            else:
+                feedback.append("❌ Shor code requires 9 qubits")
+
+            passed = score >= max_score * 0.6
+            return score, passed, "\n".join(feedback), time.time() - start
+        except Exception as e:
+            return 0, False, f"❌ Error during evaluation: {str(e)}", time.time() - start
+
+    @staticmethod
+    def evaluate_challenge_37_task378(results: dict, max_score: int = 5) -> tuple[int, bool, str, float]:
+        """Task 4.2: Shor syndrome measurement"""
+        import time
+        start = time.time()
+        try:
+            cx_count = results.get('cx_count', 0)
+            measure_count = results.get('measure_count', 0)
+            score = 0
+            feedback = []
+            if cx_count == 12:
+                score += 3
+                feedback.append("✓ Correct number of CNOT gates for syndrome (12)")
+            elif 10 <= cx_count <= 14:
+                score += 2
+                feedback.append(f"⚠️ Close to correct CNOT count: {cx_count}")
+            else:
+                feedback.append(f"❌ Expected ~12 CNOT gates, found {cx_count}")
+
+            if measure_count == 6:
+                score += 2
+                feedback.append("✓ Correct number of measurements (6)")
+            else:
+                feedback.append(f"⚠️ Expected 6 measurements, found {measure_count}")
+
+            passed = score >= max_score * 0.6
+            return score, passed, "\n".join(feedback), time.time() - start
+        except Exception as e:
+            return 0, False, f"❌ Error during evaluation: {str(e)}", time.time() - start
+
 
 # Helper function to capture stdout during execution
 def capture_stdout(func, *args, **kwargs):

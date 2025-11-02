@@ -228,7 +228,7 @@ def evaluate_task5(final_energy_perturbed: float) -> Dict[str, Any]:
         challenge_id=355,
         final_energy_perturbed=final_energy_perturbed
     )
-    
+
 def evaluate_task6(task361_predictions, task361_y_test_hidden) -> Dict[str, Any]:
     """
     Evaluate and submit Task 5 (Final Energy Perturbed) for Challenge 35.
@@ -262,7 +262,7 @@ def evaluate_task7(task362_generated_images, task362_test_clean, task362_generat
         task362_test_clean=task362_test_clean,
         task362_generated_shapes=task362_generated_shapes
     )
-    
+
 def evaluate_task8(task363_total_rewards) -> Dict[str, Any]:
     """
     Evaluate and submit Task 8 (Total Rewards) for Challenge 35.
@@ -278,3 +278,42 @@ def evaluate_task8(task363_total_rewards) -> Dict[str, Any]:
         challenge_id=363,
         task363_total_rewards=task363_total_rewards
     )
+
+def evaluate_37_task_1_1(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Submit Task 1.1 payload (challenge id 371)."""
+    return submit_results(371, **(data or {}))
+
+
+def evaluate_37_task_1_2(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Submit Task 1.2 payload (challenge id 372)."""
+    return submit_results(372, **(data or {}))
+
+
+def evaluate_37_task_1_3(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Submit Task 1.3 payload (challenge id 373)."""
+    return submit_results(373, **(data or {}))
+
+
+def evaluate_37_task_2_1(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Submit Task 2.1 payload (challenge id 374)."""
+    return submit_results(374, **(data or {}))
+
+
+def evaluate_37_task_2_2(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Submit Task 2.2 payload (challenge id 375)."""
+    return submit_results(375, **(data or {}))
+
+
+def evaluate_37_task_3_2(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Submit Task 3.2 payload (challenge id 376)."""
+    return submit_results(376, **(data or {}))
+
+
+def evaluate_37_task_4_1(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Submit Task 4.1 payload (challenge id 377)."""
+    return submit_results(377, **(data or {}))
+
+
+def evaluate_37_task_4_2(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Submit Task 4.2 payload (challenge id 378)."""
+    return submit_results(378, **(data or {}))

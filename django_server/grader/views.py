@@ -288,6 +288,23 @@ class SubmitResultsView(views.APIView):
             score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_36_task2(results, challenge.max_score)
         elif challenge_id == 363:
             score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_36_task3(results, challenge.max_score)
+        # --- Challenge 37 individual tasks (lightweight results submissions) ---
+        elif challenge_id == 371:
+            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_37_task371(results, challenge.max_score)
+        elif challenge_id == 372:
+            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_37_task372(results, challenge.max_score)
+        elif challenge_id == 373:
+            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_37_task373(results, challenge.max_score)
+        elif challenge_id == 374:
+            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_37_task374(results, challenge.max_score)
+        elif challenge_id == 375:
+            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_37_task375(results, challenge.max_score)
+        elif challenge_id == 376:
+            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_37_task376(results, challenge.max_score)
+        elif challenge_id == 377:
+            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_37_task377(results, challenge.max_score)
+        elif challenge_id == 378:
+            score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_37_task378(results, challenge.max_score)
         elif challenge_id == 35:
             score, passed, feedback, execution_time = CodeEvaluator.evaluate_challenge_35_results(results)
         else:
